@@ -23,6 +23,9 @@ feel free to play around with it.
 - AES-128-ECB
 - AES-128-CBC
 
+The implementations are technically correct but vulnerable to side
+channel attacks.
+
 # Example usage
 
     import aes
