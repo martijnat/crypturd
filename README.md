@@ -22,6 +22,7 @@ feel free to play around with it.
 
 # Currently implmented
 
+- PKCS7 Padding
 - AES-128-ECB
 - AES-128-CBC
 

@@ -22,6 +22,7 @@
 
 import sys                      # builtin
 import aes                      # my own aes implementation
+import pkcs7                    # padding for block cipher
 
 if len(sys.argv)<2:
     sys.stderr.write("Usage %s KEY [-decrypt]"%argv[0])
@@ -30,7 +31,7 @@ if len(sys.argv)<2:
 # add padding to ensure the key is at least
 # then take first bytes in case the key is already more than 16 bytes
 # *** THIS ALLOWS FOR LOW ENTRY KEY **
-key = aes.add_PKCS7_padding(sys.argv[1],16)[:16]
+key = pkcs7.add_padding(sys.argv[1],16)[:16]
 
 if len(sys.argv)>2:             # lets assume any third argument is -decrypt
     ciphertext = sys.stdin.read()

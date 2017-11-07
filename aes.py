@@ -21,40 +21,8 @@
 # 2. It is complete broken by side-channel attacks
 
 import os
-
-def random_mod(m):
-    x = ord(os.urandom(1)[0])
-    while x>=m:
-        x = ord(os.urandom(1)[0])
-    return m
-
-def xor_str(s1,s2):
-    "xor two strings of equal size"
-    return "".join([chr(ord(c1)^ord(c2)) for c1,c2 in zip(s1,s2)])
-
-
-def add_PKCS7_padding(s,n):
-    "Pad input to a multiple of n bytes"
-    if n<1:
-        raise Exception
-    pad_length = n-(len(s)%n)
-    if pad_length > 255:
-        raise Exception
-    elif pad_length==0:
-        pad_length = n
-    return s + chr(pad_length)*pad_length
-
-def remove_PKCS7_padding(s):
-    pad_length = ord(s[-1])
-    for i in range(pad_length):
-        if ord(s[-1-i]) != pad_length:
-            raise Exception
-    return s[:-pad_length]
-
-
-def print_block(b,q=True):
-    for i in range(4):
-        print "| %02x %02x %02x %02x |"%(b[i],b[i+4],b[i+8],b[i+12])
+import pkcs7
+import common
 
 S = [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67,
      0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59,
@@ -372,9 +340,9 @@ def MixColumnsInv(block):
     return new_block
 
 def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
-    key = add_PKCS7_padding(key,16)[:16]
+    key = pkcs7.add_padding(key,16)[:16]
     if padding:
-        data = add_PKCS7_padding(data,16)
+        data = pkcs7.add_padding(data,16)
         r = ""
 
     if gen_iv:
@@ -385,13 +353,13 @@ def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
         r=""
 
     for i in range(0,len(data),16):
-        cipherblock = aes128enc(xor_str(data[i:i+16],iv),key)
+        cipherblock = aes128enc(common.xor_str(data[i:i+16],iv),key)
         r+=cipherblock
         iv = cipherblock
     return r
 
 def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
-    key = add_PKCS7_padding(key,16)[:16]
+    key = pkcs7.add_padding(key,16)[:16]
     r = ""
     if gen_iv:
         iv = data[:16]
@@ -401,30 +369,30 @@ def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
 
     for i in range(0,len(data),16):
         cipherblock = data[i:i+16]
-        r+= xor_str(aes128dec(cipherblock,key),iv)
+        r+= common.xor_str(aes128dec(cipherblock,key),iv)
         iv = cipherblock
 
     if padding:
-        return remove_PKCS7_padding(r)
+        return pkcs7.remove_padding(r)
     else:
         return r
 
 def encrypt_128_ecb(data,key,padding=True):
-    key = add_PKCS7_padding(key,16)[:16]
+    key = pkcs7.add_padding(key,16)[:16]
     r = ""
     if padding:
-        data = add_PKCS7_padding(data,16)
+        data = pkcs7.add_padding(data,16)
     for i in range(0,len(data),16):
         r += aes128enc(data[i:i+16],key)
     return r
 
 def decrypt_128_ecb(data,key,padding=True):
-    key = add_PKCS7_padding(key,16)[:16]
+    key = pkcs7.add_padding(key,16)[:16]
     r = ""
     for i in range(0,len(data),16):
         r += aes128dec(data[i:i+16],key)
     if padding:
-        return remove_PKCS7_padding(r)
+        return pkcs7.remove_padding(r)
     else:
         return r
 
