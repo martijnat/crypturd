@@ -24,8 +24,10 @@ feel free to play around with it.
 
 - AES-128-CBC
 - AES-128-ECB
+- AES-128-CTR
 - AES-256-CBC
 - AES-256-ECB
+- AES-256-CTR
 - PKCS7 Padding
 - RC4
 
@@ -38,4 +40,4 @@ channel attacks.
 
     plaintext = "Attack at dawn"
     key = "Random password."
-    ciphertext = mcrypto.encrypt(plaintext,key) # use a default mode and block size (256-cbc in this case)
+    ciphertext = mcrypto.encrypt(plaintext,key) # use a default mode and block size (256-ctr in this case)

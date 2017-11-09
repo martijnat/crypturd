@@ -22,7 +22,7 @@
 
 # Block sizes: 128-bit and 256-bit
 
-# Modes: ECB,CBC
+# Modes: ECB,CBC,CTR
 
 
 import os
@@ -451,6 +451,65 @@ def aes128dec(block,key):
 
     return "".join([chr(b) for b in block])
 
+
+def advance_counter(counter):
+    number_counter = [ord(c) for c in counter]
+    number_counter[-1]+=1
+    overflow = True
+    for i in range(len(counter)-1,-1,-1):
+        if overflow:
+            number_counter[i]+=1
+            if number_counter[i]>255:
+                number_counter[i]=0
+            else:
+                overflow = False
+    return counter
+    return "".join([chr(c) for c in number_counter])
+
+
+def encrypt_256_ctr(data,key):
+    key = pkcs7.add_padding(key,32)[:32]
+    counter = os.urandom(16)
+    r=counter
+    for i in range(0,len(data),16):
+        encrypted_counter = aes256enc(counter,key)
+        r+= common.xor_str(encrypted_counter,data[i:i+16])
+        counter = advance_counter(counter)
+    return r
+
+def decrypt_256_ctr(data,key):
+    key = pkcs7.add_padding(key,32)[:32]
+    counter = data[:16]
+    data = data[16:]
+    r = ""
+    for i in range(0,len(data),16):
+        encrypted_counter = aes256enc(counter,key)
+        r+= common.xor_str(encrypted_counter,data[i:i+16])
+        counter = advance_counter(counter)
+    return r
+
+def encrypt_128_ctr(data,key):
+    key = pkcs7.add_padding(key,16)[:16]
+    counter = os.urandom(16)
+    r=counter
+    for i in range(0,len(data),16):
+        encrypted_counter = aes128enc(counter,key)
+        r+= common.xor_str(encrypted_counter,data[i:i+16])
+        counter = advance_counter(counter)
+    return r
+
+def decrypt_127_ctr(data,key):
+    key = pkcs7.add_padding(key,16)[:16]
+    counter = data[:16]
+    data = data[16:]
+    r = ""
+    for i in range(0,len(data),16):
+        encrypted_counter = aes128enc(counter,key)
+        r+= common.xor_str(encrypted_counter,data[i:i+16])
+        counter = advance_counter(counter)
+    return r
+
+
 def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
     key = pkcs7.add_padding(key,32)[:32]
     if padding:
@@ -560,6 +619,7 @@ encrypt_function[128]["CBC"] = encrypt_128_cbc
 encrypt_function[256] = {}
 encrypt_function[256]["ECB"] = encrypt_256_ecb
 encrypt_function[256]["CBC"] = encrypt_256_cbc
+encrypt_function[256]["CTR"] = encrypt_256_ctr
 
 decrypt_function = {}
 decrypt_function[128] = {}
@@ -568,10 +628,11 @@ decrypt_function[128]["CBC"] = decrypt_128_cbc
 decrypt_function[256] = {}
 decrypt_function[256]["ECB"] = decrypt_256_ecb
 decrypt_function[256]["CBC"] = decrypt_256_cbc
+decrypt_function[256]["CTR"] = decrypt_256_ctr
 
 
-def encrypt(data,key,bitsize=256,mode="CBC"):
+def encrypt(data,key,bitsize=256,mode="CTR"):
     return encrypt_function[bitsize][mode](data,key)
 
-def decrypt(data,key,bitsize=256,mode="CBC"):
+def decrypt(data,key,bitsize=256,mode="CTR"):
     return decrypt_function[bitsize][mode](data,key)
