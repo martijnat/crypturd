@@ -268,7 +268,6 @@ gfp14 = [0x00, 0x0e, 0x1c, 0x12, 0x38, 0x36, 0x24, 0x2a, 0x70, 0x7e,
 
 
 
-
 def expand_key(key,n,b):
     def rotate(b4):
         return b4[1:]+b4[:1]
@@ -438,3 +437,22 @@ def aes128dec(block,key):
     block = AddRoundKey(block,fullkey[:16])
 
     return "".join([chr(b) for b in block])
+
+
+# lookup table for all encryption and decryption modes
+encrypt_function = {}
+encrypt_function[128] = {}
+encrypt_function[128]["ECB"] = encrypt_128_ecb
+encrypt_function[128]["CBC"] = encrypt_128_cbc
+
+decrypt_function = {}
+decrypt_function[128] = {}
+decrypt_function[128]["ECB"] = decrypt_128_ecb
+decrypt_function[128]["CBC"] = decrypt_128_cbc
+
+
+def encrypt(data,key,bitsize=128,mode="CBC"):
+    return encrypt_function[bitsize][mode](data,key)
+
+def decrypt(data,key,bitsize=128,mode="CBC"):
+    return decrypt_function[bitsize][mode](data,key)
