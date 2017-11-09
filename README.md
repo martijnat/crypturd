@@ -9,7 +9,7 @@ strings.
 
 *** NOT SECURE, DO NOT USE FOR ANYTHING YOU CARE ABOUT ***
 
-The current aes implementation in this library is *NOT* secure.
+The current AES implementation in this library is *NOT* secure.
 
 1. It uses (truncated or padded) raw keys instead of generating one
    using a key-derivation function. Technically not fatal but can
@@ -20,7 +20,7 @@ The current aes implementation in this library is *NOT* secure.
 As long as you understand this code is not suitable for production,
 feel free to play around with it.
 
-# Currently implmented
+# Currently implemented
 
 - AES-128-CBC
 - AES-128-ECB
@@ -34,8 +34,8 @@ channel attacks.
 
     import aes
 
-    plaintext = "Attack at dawn"   # any length, padding is added by default
-    key = "Random password."   # 16 bytes (raw key)
+    plaintext = "Attack at dawn"
+    key = "Random password."
     ciphertext = aes.encrypt_128_cbc(plaintext,key)
 
 mcrypto.py is a simple example script that can encrypt and decrypt based on command line argument
