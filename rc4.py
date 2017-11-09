@@ -38,8 +38,21 @@ class rc4():
         self.i = 0
         self.j = 0
 
-    def rand(self):  # random integer mod 256
+    def rand_int8(self):
+        "return a psuedorandom integer mod 256"
         self.i = (self.i + 1) % 256
         self.j = (self.j + self.S[self.i]) % 256
         self.S[self.i], self.S[self.j] = self.S[self.j], self.S[self.i]
         return self.S[(self.S[self.i] + self.S[self.j]) % 256]
+
+    def rand_int16(self):
+        "Combine two 8-bit random numbers into a 16 bit value"
+        return (self.rand_int8()<<8)+(self.rand_int8())
+
+    def rand_int32(self):
+        "Combine two 16-bit random numbers into a 32 bit value"
+        return (self.rand_int16()<<16)+(self.rand_int16())
+
+    def rand(self):
+        "Return a random float in the range 0-1"
+        return float(self.rand_int32())/float(2**32)
