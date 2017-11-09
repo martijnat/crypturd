@@ -20,6 +20,11 @@
 
 # 2. It is complete broken by side-channel attacks
 
+# Block sizes: 128-bit and 256-bit
+
+# Modes: ECB,CBC
+
+
 import os
 import pkcs7
 import common
@@ -288,16 +293,24 @@ def expand_key(key,n,b):
         for _ in range(3):
             t = [t[ind]^key[ind-n] for ind in range(4)]
             key = key + t
+        # extra steps for larger key sizes
+        if n==32:
+            t = [S[t[ind]] for ind in range(4)]
+            t = [t[ind]^key[ind-n] for ind in range(4)]
+            key = key + t
+        if n==32:
+            for _ in range(3):
+                t = [t[ind]^key[ind-n] for ind in range(4)]
+                key = key + t
 
-    # for i in range(12):
-    #     print("Round %02i: %s"%(i," ".join(["%02x"%key[16*i+j]for j in range(16)])))
 
-    # print_block(key[:16])
-    # quit(1)
     return key
 
 def aes128round_keys(key):
     return expand_key(list(map(ord,key)),16,176)
+
+def aes256round_keys(key):
+    return expand_key(list(map(ord,key)),32,240)
 
 def AddRoundKey(block,round_key):
     return [block[ind]^round_key[ind] for ind in range(16)]
@@ -438,21 +451,127 @@ def aes128dec(block,key):
 
     return "".join([chr(b) for b in block])
 
+def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
+    key = pkcs7.add_padding(key,32)[:32]
+    if padding:
+        data = pkcs7.add_padding(data,16)
+        r = ""
+
+    if gen_iv:
+        iv = os.urandom(16)
+        r = iv
+    else:
+        iv = "\0"*16
+        r=""
+
+    for i in range(0,len(data),16):
+        cipherblock = aes256enc(common.xor_str(data[i:i+16],iv),key)
+        r+=cipherblock
+        iv = cipherblock
+    return r
+
+def decrypt_256_cbc(data,key,padding=True,gen_iv=True):
+    key = pkcs7.add_padding(key,32)[:32]
+    r = ""
+    if gen_iv:
+        iv = data[:16]
+        data = data[16:]
+    else:
+        iv = "\0"*16
+
+    for i in range(0,len(data),16):
+        cipherblock = data[i:i+16]
+        r+= common.xor_str(aes256dec(cipherblock,key),iv)
+        iv = cipherblock
+
+    if padding:
+        return pkcs7.remove_padding(r)
+    else:
+        return r
+
+def encrypt_256_ecb(data,key,padding=True):
+    key = pkcs7.add_padding(key,32)[:32]
+    r = ""
+    if padding:
+        data = pkcs7.add_padding(data,16)
+    for i in range(0,len(data),16):
+        r += aes256enc(data[i:i+16],key)
+    return r
+
+def decrypt_256_ecb(data,key,padding=True):
+    key = pkcs7.add_padding(key,32)[:32]
+    r = ""
+    for i in range(0,len(data),16):
+        r += aes256dec(data[i:i+16],key)
+    if padding:
+        return pkcs7.remove_padding(r)
+    else:
+        return r
+
+def aes256enc(block,key):
+    # expand key
+    fullkey = aes256round_keys(key)
+    block = [ord(b) for b in block]
+    # initial round
+    block = AddRoundKey(block,fullkey[:16])
+    # Rounds 2-11
+    for n in range(1,14):
+        block = SubBytes(block)
+        block = ShiftRows(block)
+        block = MixColumns(block)
+        block = AddRoundKey(block,fullkey[n*16:n*16+16])
+    # final round
+    block = SubBytes(block)
+    block = ShiftRows(block)
+    block = AddRoundKey(block,fullkey[-16:])
+    return "".join([chr(b) for b in block])
+
+def aes256dec(block,key):
+    # expand key
+    fullkey = aes256round_keys(key)
+    block = [ord(b) for b in block]
+
+    # undo final round
+    final_round_key = fullkey[-16:]
+
+    block = AddRoundKey(block,final_round_key)
+    block = ShiftRowsInv(block)
+    block = SubBytesInv(block)
+
+    for n in range(13,0,-1):
+        round_key = fullkey[n*16:n*16+16]
+
+        block = AddRoundKey(block,round_key)
+        block = MixColumnsInv(block)
+        block = ShiftRowsInv(block)
+        block = SubBytesInv(block)
+
+    # Undo initial round
+    block = AddRoundKey(block,fullkey[:16])
+
+    return "".join([chr(b) for b in block])
+
 
 # lookup table for all encryption and decryption modes
 encrypt_function = {}
 encrypt_function[128] = {}
 encrypt_function[128]["ECB"] = encrypt_128_ecb
 encrypt_function[128]["CBC"] = encrypt_128_cbc
+encrypt_function[256] = {}
+encrypt_function[256]["ECB"] = encrypt_256_ecb
+encrypt_function[256]["CBC"] = encrypt_256_cbc
 
 decrypt_function = {}
 decrypt_function[128] = {}
 decrypt_function[128]["ECB"] = decrypt_128_ecb
 decrypt_function[128]["CBC"] = decrypt_128_cbc
+decrypt_function[256] = {}
+decrypt_function[256]["ECB"] = decrypt_256_ecb
+decrypt_function[256]["CBC"] = decrypt_256_cbc
 
 
-def encrypt(data,key,bitsize=128,mode="CBC"):
+def encrypt(data,key,bitsize=256,mode="CBC"):
     return encrypt_function[bitsize][mode](data,key)
 
-def decrypt(data,key,bitsize=128,mode="CBC"):
+def decrypt(data,key,bitsize=256,mode="CBC"):
     return decrypt_function[bitsize][mode](data,key)

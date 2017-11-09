@@ -28,10 +28,10 @@ if len(sys.argv)<2:
     sys.stderr.write("Usage %s KEY [-decrypt]"%argv[0])
     quit(1)
 
-# add padding to ensure the key is at least
-# then take first bytes in case the key is already more than 16 bytes
+# add padding to ensure the key is at least 256 bit/ 32 bytes
+# then take first bytes in case the key is already more than 32 bytes
 # *** THIS ALLOWS FOR LOW ENTRY KEY **
-key = pkcs7.add_padding(sys.argv[1],16)[:16]
+key = sys.argv[1]
 
 if len(sys.argv)>2:             # lets assume any third argument is -decrypt
     ciphertext = sys.stdin.read()

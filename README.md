@@ -24,6 +24,8 @@ feel free to play around with it.
 
 - AES-128-CBC
 - AES-128-ECB
+- AES-256-CBC
+- AES-256-ECB
 - PKCS7 Padding
 - RC4
 
