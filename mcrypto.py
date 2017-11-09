@@ -35,10 +35,10 @@ key = pkcs7.add_padding(sys.argv[1],16)[:16]
 
 if len(sys.argv)>2:             # lets assume any third argument is -decrypt
     ciphertext = sys.stdin.read()
-    plaintext = aes.decrypt_128_cbc(ciphertext,key)
+    plaintext = aes.decrypt(ciphertext,key)
     sys.stdout.write(plaintext)
 else:
     plaintext = sys.stdin.read()
-    ciphertext = aes.encrypt_128_cbc(plaintext,key)
+    ciphertext = aes.encrypt(plaintext,key)
     sys.stdout.write(ciphertext)
 
