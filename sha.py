@@ -8,6 +8,8 @@ BITS_IN_WORD = 32  # w - Number of bits in a word.
 
 from common import rotr_i32 as rotr
 from common import shiftr_i32 as shiftr
+from common import xor_str
+from common import null_padding
 
 def sha256(m):
     "Sha256 on a complete message"
@@ -104,3 +106,29 @@ def sha256(m):
         for bitshift in 24,16,8,0:
             digest += chr((h>>bitshift)%256)
     return digest
+
+def sha256_hmac(data,key):
+    if len(key)>32:
+        key = sha256(key)
+    elif key<32:
+        key = null_padding(key,64)
+    o_key_pad = xor_str(key,'\x5c'*64)
+    i_key_pad = xor_str(key,'\x36'*64)
+    return sha256(o_key_pad+sha256(i_key_pad+data))
+
+def add_sha256_hmac(encf):
+    def f(data,key):
+        ciphertext = encf(data,key)
+        hmac = sha256_hmac(ciphertext,key)
+        return ciphertext + hmac
+    return f
+
+def check_sha256_hmac(decf):
+    def f(data,key):
+        ciphertext = data[:-32]
+        hmac = data[-32:]
+        if hmac != sha256_hmac(ciphertext,key):
+            raise Exception
+        plaintext = decf(ciphertext,key)
+        return plaintext
+    return f

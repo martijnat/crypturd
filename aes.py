@@ -28,6 +28,7 @@
 import os
 import pkcs7
 import common
+from sha import add_sha256_hmac,check_sha256_hmac
 
 S = [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67,
      0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59,
@@ -351,6 +352,7 @@ def MixColumnsInv(block):
         new_block[i*4+3] = gfp11[block[i*4]] ^ gfp13[block[i*4+1]] ^ gfp9[block[i*4+2]] ^ gfp14[block[i*4+3]]
     return new_block
 
+@add_sha256_hmac
 def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
     key = pkcs7.add_padding(key,16)[:16]
     if padding:
@@ -370,6 +372,7 @@ def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
         iv = cipherblock
     return r
 
+@check_sha256_hmac
 def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
     key = pkcs7.add_padding(key,16)[:16]
     r = ""
@@ -466,7 +469,7 @@ def advance_counter(counter):
     return counter
     return "".join([chr(c) for c in number_counter])
 
-
+@add_sha256_hmac
 def encrypt_256_ctr(data,key):
     key = pkcs7.add_padding(key,32)[:32]
     counter = os.urandom(16)
@@ -477,6 +480,7 @@ def encrypt_256_ctr(data,key):
         counter = advance_counter(counter)
     return r
 
+@check_sha256_hmac
 def decrypt_256_ctr(data,key):
     key = pkcs7.add_padding(key,32)[:32]
     counter = data[:16]
@@ -488,6 +492,7 @@ def decrypt_256_ctr(data,key):
         counter = advance_counter(counter)
     return r
 
+@add_sha256_hmac
 def encrypt_128_ctr(data,key):
     key = pkcs7.add_padding(key,16)[:16]
     counter = os.urandom(16)
@@ -498,7 +503,8 @@ def encrypt_128_ctr(data,key):
         counter = advance_counter(counter)
     return r
 
-def decrypt_127_ctr(data,key):
+@check_sha256_hmac
+def decrypt_128_ctr(data,key):
     key = pkcs7.add_padding(key,16)[:16]
     counter = data[:16]
     data = data[16:]
@@ -509,7 +515,7 @@ def decrypt_127_ctr(data,key):
         counter = advance_counter(counter)
     return r
 
-
+@add_sha256_hmac
 def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
     key = pkcs7.add_padding(key,32)[:32]
     if padding:
@@ -529,6 +535,7 @@ def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
         iv = cipherblock
     return r
 
+@check_sha256_hmac
 def decrypt_256_cbc(data,key,padding=True,gen_iv=True):
     key = pkcs7.add_padding(key,32)[:32]
     r = ""
