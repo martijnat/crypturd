@@ -22,9 +22,10 @@ feel free to play around with it.
 
 # Currently implmented
 
-- PKCS7 Padding
-- AES-128-ECB
 - AES-128-CBC
+- AES-128-ECB
+- PKCS7 Padding
+- RC4
 
 The implementations are technically correct but vulnerable to side
 channel attacks.
