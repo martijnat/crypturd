@@ -34,11 +34,8 @@ channel attacks.
 
 # Example usage
 
-    import aes
+    import mcrypto
 
     plaintext = "Attack at dawn"
     key = "Random password."
-    ciphertext = aes.encrypt(plaintext,key) # use a default mode and block size (128-cbc in this case)
-
-mcrypto.py is a simple example script that can encrypt and decrypt based on command line argument
-
+    ciphertext = mcrypto.encrypt(plaintext,key) # use a default mode and block size (256-cbc in this case)
