@@ -611,28 +611,6 @@ def aes256dec(block,key):
     return "".join([chr(b) for b in block])
 
 
-# lookup table for all encryption and decryption modes
-encrypt_function = {}
-encrypt_function[128] = {}
-encrypt_function[128]["ECB"] = encrypt_128_ecb
-encrypt_function[128]["CBC"] = encrypt_128_cbc
-encrypt_function[256] = {}
-encrypt_function[256]["ECB"] = encrypt_256_ecb
-encrypt_function[256]["CBC"] = encrypt_256_cbc
-encrypt_function[256]["CTR"] = encrypt_256_ctr
-
-decrypt_function = {}
-decrypt_function[128] = {}
-decrypt_function[128]["ECB"] = decrypt_128_ecb
-decrypt_function[128]["CBC"] = decrypt_128_cbc
-decrypt_function[256] = {}
-decrypt_function[256]["ECB"] = decrypt_256_ecb
-decrypt_function[256]["CBC"] = decrypt_256_cbc
-decrypt_function[256]["CTR"] = decrypt_256_ctr
-
-
-def encrypt(data,key,bitsize=256,mode="CTR"):
-    return encrypt_function[bitsize][mode](data,key)
-
-def decrypt(data,key,bitsize=256,mode="CTR"):
-    return decrypt_function[bitsize][mode](data,key)
+# Defaults
+encrypt = encrypt_256_ctr
+decrypt = decrypt_256_ctr
