@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
 def random_mod(m):
     x = ord(os.urandom(1)[0])
     while x>=m:
@@ -60,3 +62,14 @@ class RngBase():
     def rand(self):
         "Return a random float in the range 0-1"
         return float(self.rand_int32())/float(2**32)
+
+def SilenceErrors(f):
+    "Decoration for surpressing error messages that might leak data"
+    def SilentFuction(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except:
+            sys.stderr.write("Error\n")
+        return
+
+    return SilentFuction

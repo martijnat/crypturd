@@ -26,6 +26,7 @@ import os
 import pkcs7
 import common
 from sha import add_sha256_hmac,check_sha256_hmac,sha256
+from common import SilenceErrors
 
 S = [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67,
      0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59,
@@ -362,6 +363,7 @@ def advance_counter(counter):
                 overflow = False
     return "".join([chr(c) for c in number_counter])
 
+@SilenceErrors
 @add_sha256_hmac
 def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
     if len(key)<16:
@@ -387,6 +389,7 @@ def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
         iv = cipherblock
     return r
 
+@SilenceErrors
 @check_sha256_hmac
 def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
     if len(key)<16:
@@ -411,6 +414,7 @@ def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
     else:
         return r
 
+@SilenceErrors
 def encrypt_128_ecb(data,key,padding=True):
     if len(key)<16:
         key = common.null_padding(key,16)
@@ -424,6 +428,7 @@ def encrypt_128_ecb(data,key,padding=True):
         r += aes128enc(data[i:i+16],key)
     return r
 
+@SilenceErrors
 def decrypt_128_ecb(data,key,padding=True):
     if len(key)<16:
         key = common.null_padding(key,16)
@@ -439,6 +444,7 @@ def decrypt_128_ecb(data,key,padding=True):
     else:
         return r
 
+@SilenceErrors
 @add_sha256_hmac
 def encrypt_128_ctr(data,key):
     key = pkcs7.add_padding(key,16)[:16]
@@ -450,6 +456,7 @@ def encrypt_128_ctr(data,key):
         counter = advance_counter(counter)
     return r
 
+@SilenceErrors
 @check_sha256_hmac
 def decrypt_128_ctr(data,key):
     key = pkcs7.add_padding(key,16)[:16]
@@ -505,6 +512,7 @@ def aes128dec(block,key):
 
     return "".join([chr(b) for b in block])
 
+@SilenceErrors
 @add_sha256_hmac
 def encrypt_256_ctr(data,key):
     if len(key)<32:
@@ -519,6 +527,7 @@ def encrypt_256_ctr(data,key):
         counter = advance_counter(counter)
     return r
 
+@SilenceErrors
 @check_sha256_hmac
 def decrypt_256_ctr(data,key):
     if len(key)<32:
@@ -534,6 +543,7 @@ def decrypt_256_ctr(data,key):
         counter = advance_counter(counter)
     return r
 
+@SilenceErrors
 @add_sha256_hmac
 def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
     if len(key)<32:
@@ -557,6 +567,7 @@ def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
         iv = cipherblock
     return r
 
+@SilenceErrors
 @check_sha256_hmac
 def decrypt_256_cbc(data,key,padding=True,gen_iv=True):
     if len(key)<32:
