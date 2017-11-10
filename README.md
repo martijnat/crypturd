@@ -7,8 +7,6 @@ Use with caution.
 
 Implementation of several cryptographic primitives.
 
-![Screenshot](screenshot.png)
-
 # Example usage
 
     import mcrypto
