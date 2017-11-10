@@ -18,8 +18,8 @@
 import common,aes,rc4,pkcs7
 
 # Default encryption is AES-256-CTR+SHA256-HMAC
-encrypt = aes.encrypt
-decrypt = aes.encrypt
+encrypt = aes.encrypt_256_ctr
+decrypt = aes.decrypt_256_ctr
 
 # Default hash is SHA56
 hash = sha.sha256
