@@ -64,12 +64,14 @@ class RngBase():
         return float(self.rand_int32())/float(2**32)
 
 def SilenceErrors(f):
-    "Decoration for surpressing error messages that might leak data"
+    "Replace any exception by a generic one"
     def SilentFuction(*args, **kwargs):
+        RAISE_EXCEPTION = False
         try:
             return f(*args, **kwargs)
         except:
-            sys.stderr.write("Error\n")
-        return
+            RAISE_EXCEPTION = True
+        if RAISE_EXCEPTION:
+            raise Exception
 
     return SilentFuction
