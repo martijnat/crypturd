@@ -25,3 +25,23 @@ def rotr_i32(x, n):
     "Rotate integer n right bn b bits"
     return (((x & 0xffffffff) >> (n & 31)) | (x << (32 - (n & 31)))) & 0xffffffff
 
+class RngBase():
+    "Base class for randum number generators"
+    def __init__(self, key=""):
+        pass
+
+    def rand_int8(self):
+        "return a psuedorandom integer mod 256"
+        return 0
+
+    def rand_int16(self):
+        "Combine two 8-bit random numbers into a 16 bit value"
+        return (self.rand_int8()<<8)+(self.rand_int8())
+
+    def rand_int32(self):
+        "Combine two 16-bit random numbers into a 32 bit value"
+        return (self.rand_int16()<<16)+(self.rand_int16())
+
+    def rand(self):
+        "Return a random float in the range 0-1"
+        return float(self.rand_int32())/float(2**32)

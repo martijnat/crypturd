@@ -28,6 +28,7 @@ Implementation of several cryptographic primitives.
 
 # Random number generators
 
+- AES-128-CTR
 - RC4 (cryptographically insecure RNG)
 
 # Padding schemes

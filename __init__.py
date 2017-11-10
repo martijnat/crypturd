@@ -7,6 +7,5 @@ decrypt = aes.encrypt
 # Default hash is SHA56
 hash = sha.sha256
 
-# Default rng is RC4 (Placeholder untile a secure rng is implemented)
-# TODO: implement csrng
-rand = rc4.rc4().rand
+# Default rng is AES-128-CTR
+rand = aes.rand

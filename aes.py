@@ -635,6 +635,26 @@ def aes256dec(block,key):
     return "".join([chr(b) for b in block])
 
 
+class RNG_CTR(common.RngBase):
+    "A Random number generator based of AES-128-CTR"
+    def __init__(self):
+        self.key = os.urandom(16)
+        self.counter = os.urandom(16)
+        self.buf = ""
+
+    def update_buffer(self):
+        self.buf += aes128enc(self.counter,self.key)
+        self.counter = advance_counter(self.counter)
+
+    def rand_int8(self):
+        "return a psuedorandom integer mod 256"
+        if len(self.buf)<1:
+            self.update_buffer()
+        r = ord(self.buf[0])
+        self.buf = self.buf[1:]
+        return r
+
 # Defaults
+rand = RNG_CTR().rand
 encrypt = encrypt_256_ctr
 decrypt = decrypt_256_ctr
