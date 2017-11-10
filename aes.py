@@ -1,34 +1,17 @@
 #!/usr/bin/env python2
 
-# __        ___    ____  _   _ ___ _   _  ____ _
-# \ \      / / \  |  _ \| \ | |_ _| \ | |/ ___| |
-#  \ \ /\ / / _ \ | |_) |  \| || ||  \| | |  _| |
-#   \ V  V / ___ \|  _ <| |\  || || |\  | |_| |_|
-#    \_/\_/_/   \_\_| \_\_| \_|___|_| \_|\____(_)
-
-#  _   _  ___ _____   ____  _____ ____ _   _ ____  _____
-# | \ | |/ _ \_   _| / ___|| ____/ ___| | | |  _ \| ____|
-# |  \| | | | || |   \___ \|  _|| |   | | | | |_) |  _|
-# | |\  | |_| || |    ___) | |__| |___| |_| |  _ <| |___
-# |_| \_|\___/ |_|   |____/|_____\____|\___/|_| \_\_____|
-
-# The current aes implementation in this library is *NOT* secure.
-
-# 1. It uses (truncated or padded) raw keys instead of generating one
-#    using a key-derivation function. Technically not fatal but can
-#    easily allow in low entropy keys with incorrect use.
-
-# 2. It is complete broken by side-channel attacks
+# **WARNiNG**: This implementation is likely vulnerable to side-channel attacks.
 
 # Block sizes: 128-bit and 256-bit
 
 # Modes: ECB,CBC,CTR
+# CBC and CTR mode automatically append a SHA256-HMAC
 
 
 import os
 import pkcs7
 import common
-from sha import add_sha256_hmac,check_sha256_hmac
+from sha import add_sha256_hmac,check_sha256_hmac,sha256
 
 S = [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67,
      0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59,
@@ -354,6 +337,10 @@ def MixColumnsInv(block):
 
 @add_sha256_hmac
 def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
+    if len(key)<16:
+        key = common.null_padding(key,16)
+    elif len(key)>16:
+        key = sha256(key)[:16
     key = pkcs7.add_padding(key,16)[:16]
     if padding:
         data = pkcs7.add_padding(data,16)
