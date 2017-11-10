@@ -335,13 +335,27 @@ def MixColumnsInv(block):
         new_block[i*4+3] = gfp11[block[i*4]] ^ gfp13[block[i*4+1]] ^ gfp9[block[i*4+2]] ^ gfp14[block[i*4+3]]
     return new_block
 
+def advance_counter(counter):
+    number_counter = [ord(c) for c in counter]
+    number_counter[-1]+=1
+    overflow = True
+    for i in range(len(counter)-1,-1,-1):
+        if overflow:
+            number_counter[i]+=1
+            if number_counter[i]>255:
+                number_counter[i]=0
+            else:
+                overflow = False
+    return "".join([chr(c) for c in number_counter])
+
 @add_sha256_hmac
 def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
     if len(key)<16:
         key = common.null_padding(key,16)
     elif len(key)>16:
-        key = sha256(key)[:16
-    key = pkcs7.add_padding(key,16)[:16]
+        h = sha256(key)
+        key = common.xor_str(h[:16],h[16:])
+
     if padding:
         data = pkcs7.add_padding(data,16)
         r = ""
@@ -361,7 +375,11 @@ def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
 
 @check_sha256_hmac
 def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
-    key = pkcs7.add_padding(key,16)[:16]
+    if len(key)<16:
+        key = common.null_padding(key,16)
+    elif len(key)>16:
+        h = sha256(key)
+        key = common.xor_str(h[:16],h[16:])
     r = ""
     if gen_iv:
         iv = data[:16]
@@ -380,7 +398,11 @@ def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
         return r
 
 def encrypt_128_ecb(data,key,padding=True):
-    key = pkcs7.add_padding(key,16)[:16]
+    if len(key)<16:
+        key = common.null_padding(key,16)
+    elif len(key)>16:
+        h = sha256(key)
+        key = common.xor_str(h[:16],h[16:])
     r = ""
     if padding:
         data = pkcs7.add_padding(data,16)
@@ -389,6 +411,11 @@ def encrypt_128_ecb(data,key,padding=True):
     return r
 
 def decrypt_128_ecb(data,key,padding=True):
+    if len(key)<16:
+        key = common.null_padding(key,16)
+    elif len(key)>16:
+        h = sha256(key)
+        key = common.xor_str(h[:16],h[16:])
     key = pkcs7.add_padding(key,16)[:16]
     r = ""
     for i in range(0,len(data),16):
@@ -397,6 +424,29 @@ def decrypt_128_ecb(data,key,padding=True):
         return pkcs7.remove_padding(r)
     else:
         return r
+
+@add_sha256_hmac
+def encrypt_128_ctr(data,key):
+    key = pkcs7.add_padding(key,16)[:16]
+    counter = os.urandom(16)
+    r=counter
+    for i in range(0,len(data),16):
+        encrypted_counter = aes128enc(counter,key)
+        r+= common.xor_str(encrypted_counter,data[i:i+16])
+        counter = advance_counter(counter)
+    return r
+
+@check_sha256_hmac
+def decrypt_128_ctr(data,key):
+    key = pkcs7.add_padding(key,16)[:16]
+    counter = data[:16]
+    data = data[16:]
+    r = ""
+    for i in range(0,len(data),16):
+        encrypted_counter = aes128enc(counter,key)
+        r+= common.xor_str(encrypted_counter,data[i:i+16])
+        counter = advance_counter(counter)
+    return r
 
 def aes128enc(block,key):
     # expand key
@@ -441,24 +491,12 @@ def aes128dec(block,key):
 
     return "".join([chr(b) for b in block])
 
-
-def advance_counter(counter):
-    number_counter = [ord(c) for c in counter]
-    number_counter[-1]+=1
-    overflow = True
-    for i in range(len(counter)-1,-1,-1):
-        if overflow:
-            number_counter[i]+=1
-            if number_counter[i]>255:
-                number_counter[i]=0
-            else:
-                overflow = False
-    return counter
-    return "".join([chr(c) for c in number_counter])
-
 @add_sha256_hmac
 def encrypt_256_ctr(data,key):
-    key = pkcs7.add_padding(key,32)[:32]
+    if len(key)<32:
+        key = common.null_padding(key,32)
+    elif len(key)>32:
+        key = sha256(key)
     counter = os.urandom(16)
     r=counter
     for i in range(0,len(data),16):
@@ -469,7 +507,10 @@ def encrypt_256_ctr(data,key):
 
 @check_sha256_hmac
 def decrypt_256_ctr(data,key):
-    key = pkcs7.add_padding(key,32)[:32]
+    if len(key)<32:
+        key = common.null_padding(key,32)
+    elif len(key)>32:
+        key = sha256(key)
     counter = data[:16]
     data = data[16:]
     r = ""
@@ -480,31 +521,11 @@ def decrypt_256_ctr(data,key):
     return r
 
 @add_sha256_hmac
-def encrypt_128_ctr(data,key):
-    key = pkcs7.add_padding(key,16)[:16]
-    counter = os.urandom(16)
-    r=counter
-    for i in range(0,len(data),16):
-        encrypted_counter = aes128enc(counter,key)
-        r+= common.xor_str(encrypted_counter,data[i:i+16])
-        counter = advance_counter(counter)
-    return r
-
-@check_sha256_hmac
-def decrypt_128_ctr(data,key):
-    key = pkcs7.add_padding(key,16)[:16]
-    counter = data[:16]
-    data = data[16:]
-    r = ""
-    for i in range(0,len(data),16):
-        encrypted_counter = aes128enc(counter,key)
-        r+= common.xor_str(encrypted_counter,data[i:i+16])
-        counter = advance_counter(counter)
-    return r
-
-@add_sha256_hmac
 def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
-    key = pkcs7.add_padding(key,32)[:32]
+    if len(key)<32:
+        key = common.null_padding(key,32)
+    elif len(key)>32:
+        key = sha256(key)
     if padding:
         data = pkcs7.add_padding(data,16)
         r = ""
@@ -524,7 +545,10 @@ def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
 
 @check_sha256_hmac
 def decrypt_256_cbc(data,key,padding=True,gen_iv=True):
-    key = pkcs7.add_padding(key,32)[:32]
+    if len(key)<32:
+        key = common.null_padding(key,32)
+    elif len(key)>32:
+        key = sha256(key)
     r = ""
     if gen_iv:
         iv = data[:16]
@@ -543,7 +567,10 @@ def decrypt_256_cbc(data,key,padding=True,gen_iv=True):
         return r
 
 def encrypt_256_ecb(data,key,padding=True):
-    key = pkcs7.add_padding(key,32)[:32]
+    if len(key)<32:
+        key = common.null_padding(key,32)
+    elif len(key)>32:
+        key = sha256(key)
     r = ""
     if padding:
         data = pkcs7.add_padding(data,16)
@@ -552,7 +579,10 @@ def encrypt_256_ecb(data,key,padding=True):
     return r
 
 def decrypt_256_ecb(data,key,padding=True):
-    key = pkcs7.add_padding(key,32)[:32]
+    if len(key)<32:
+        key = common.null_padding(key,32)
+    elif len(key)>32:
+        key = sha256(key)
     r = ""
     for i in range(0,len(data),16):
         r += aes256dec(data[i:i+16],key)
