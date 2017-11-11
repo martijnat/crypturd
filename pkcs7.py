@@ -15,20 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def add_padding(s,n):
+
+def add_padding(s, n):
     "Pad input to a multiple of n bytes"
-    if n<1:
+    if n < 1:
         raise Exception("Invalid padding length")
-    pad_length = n-(len(s)%n)
+    pad_length = n - (len(s) % n)
     if pad_length > 255:
         raise Exception("Invalid padding length")
-    elif pad_length==0:
+    elif pad_length == 0:
         pad_length = n
-    return s + chr(pad_length)*pad_length
+    return s + chr(pad_length) * pad_length
+
 
 def remove_padding(s):
     pad_length = ord(s[-1])
     for i in range(pad_length):
-        if ord(s[-1-i]) != pad_length:
+        if ord(s[-1 - i]) != pad_length:
             raise Exception("Invalid padding")
     return s[:-pad_length]

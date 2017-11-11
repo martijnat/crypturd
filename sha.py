@@ -25,6 +25,7 @@ from common import shiftr_i32 as shiftr
 from common import xor_str
 from common import null_padding
 
+
 def sha256(m):
     "Sha256 on a complete message"
 
@@ -39,7 +40,8 @@ def sha256(m):
     h7 = 0x5be0cd19
 
     # Initialize array of round constants
-    k = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    k = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
          0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
          0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
          0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
@@ -62,17 +64,18 @@ def sha256(m):
         # The initial values in w[0..63] don't matter
         w = [0 for _ in range(64)]
         # copy chunk into first 16 words w[0..15] of the message schedule array
-        for i in range(0,16):
-            w[i] = ((ord(chunk[i*4+0])<<24) +
-                    (ord(chunk[i*4+1])<<16) +
-                    (ord(chunk[i*4+2])<<8) +
-                    (ord(chunk[i*4+3])<<0))
+        for i in range(0, 16):
+            w[i] = ((ord(chunk[i * 4 + 0]) << 24) +
+                    (ord(chunk[i * 4 + 1]) << 16) +
+                    (ord(chunk[i * 4 + 2]) << 8) +
+                    (ord(chunk[i * 4 + 3]) << 0))
         # Extend the first 16 words into the remaining 48 words w[16..63] of the
         # message schedule array:
         for i in range(16, 64):
-            s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ shiftr(w[i - 15],3)
-            s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2],19) ^ shiftr(w[i - 2],10)
-            w[i]=w[i - 16] + s0 + w[i - 7] + s1
+            s0 = rotr(w[i - 15], 7) ^ rotr(
+                w[i - 15], 18) ^ shiftr(w[i - 15], 3)
+            s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ shiftr(w[i - 2], 10)
+            w[i] = w[i - 16] + s0 + w[i - 7] + s1
 
         # Initialize working variables to current hash value:
         a = h0
@@ -85,12 +88,12 @@ def sha256(m):
         h = h7
 
         # Compression function main loop:
-        for i in range(0,64):
-            S1 = rotr(e,6) ^ rotr(e,11) ^ rotr(e,25)
-            #S1 = sigma1(e)
+        for i in range(0, 64):
+            S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)
+            # S1 = sigma1(e)
             ch = (e & f) ^ ((~e) & g)
             temp1 = h + S1 + ch + k[i] + w[i]
-            S0 = rotr(a,2) ^ rotr(a,13) ^ rotr(a,22)
+            S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)
             maj = (a & b) ^ (a & c) ^ (b & c)
             temp2 = S0 + maj
 
@@ -113,36 +116,38 @@ def sha256(m):
         h6 = h6 + g
         h7 = h7 + h
 
-
     # Produce the final hash value (big-endian):
     digest = ""
-    for h in h0,h1,h2,h3,h4,h5,h6,h7:
-        for bitshift in 24,16,8,0:
-            digest += chr((h>>bitshift)%256)
+    for h in h0, h1, h2, h3, h4, h5, h6, h7:
+        for bitshift in 24, 16, 8, 0:
+            digest += chr((h >> bitshift) % 256)
     return digest
 
-def sha256_hmac(data,key):
-    if len(key)>32:
+
+def sha256_hmac(data, key):
+    if len(key) > 32:
         key = sha256(key)
-    elif key<32:
-        key = null_padding(key,64)
-    o_key_pad = xor_str(key,'\x5c'*64)
-    i_key_pad = xor_str(key,'\x36'*64)
-    return sha256(o_key_pad+sha256(i_key_pad+data))
+    elif key < 32:
+        key = null_padding(key, 64)
+    o_key_pad = xor_str(key, '\x5c' * 64)
+    i_key_pad = xor_str(key, '\x36' * 64)
+    return sha256(o_key_pad + sha256(i_key_pad + data))
+
 
 def add_sha256_hmac(encf):
-    def f(data,key):
-        ciphertext = encf(data,key)
-        hmac = sha256_hmac(ciphertext,key)
+    def f(data, key):
+        ciphertext = encf(data, key)
+        hmac = sha256_hmac(ciphertext, key)
         return ciphertext + hmac
     return f
 
+
 def check_sha256_hmac(decf):
-    def f(data,key):
+    def f(data, key):
         ciphertext = data[:-32]
         hmac = data[-32:]
-        if hmac != sha256_hmac(ciphertext,key):
+        if hmac != sha256_hmac(ciphertext, key):
             raise Exception("Invalid HMAC")
-        plaintext = decf(ciphertext,key)
+        plaintext = decf(ciphertext, key)
         return plaintext
     return f

@@ -23,8 +23,11 @@ import common
 # |  _ <| |___|__   _| | \__ \ | | | | (_) | |_  \__ \  __/ (__| |_| | | |  __/_|
 # |_| \_\\____|  |_|   |_|___/ |_| |_|\___/ \__| |___/\___|\___|\__,_|_|  \___(_)
 
+
 class rc4(common.RngBase):
+
     "A very simple but insecure random number generator"
+
     def __init__(self, key=""):
         self.S = list(range(256))
         if len(key) > 0:

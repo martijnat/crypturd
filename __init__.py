@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import common,aes,rc4,pkcs7
+import common
+import aes
+import rc4
+import pkcs7
 
 # Default encryption is AES-256-CTR+SHA256-HMAC
 encrypt = aes.encrypt_256_ctr
@@ -30,4 +33,4 @@ rand = aes.rand
 __all__ = ["aes",
            "pkcs7",
            "rc4",
-           "sha",]
+           "sha", ]

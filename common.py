@@ -112,7 +112,7 @@ class CTLT():
         if ctlt:
             result = 0x00
             for i in range(256):
-                result^=self.table[ind]&[0,255][ind==i]
+                result ^= self.table[ind] & [0, 255][ind == i]
             return result
         else:
             return self.table[ind]

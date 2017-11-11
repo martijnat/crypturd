@@ -23,8 +23,8 @@
 import os
 import pkcs7
 import common
-from sha import add_sha256_hmac,check_sha256_hmac,sha256
-from common import SilenceErrors,CTLT
+from sha import add_sha256_hmac, check_sha256_hmac, sha256
+from common import SilenceErrors, CTLT
 
 S = CTLT([0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01,
           0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D,
@@ -292,142 +292,161 @@ gfp14 = CTLT([0x00, 0x0e, 0x1c, 0x12, 0x38, 0x36, 0x24, 0x2a, 0x70,
               0x9f, 0x91, 0x83, 0x8d])
 
 
-
-def expand_key(key,n,b):
+def expand_key(key, n, b):
     def rotate(b4):
-        return b4[1:]+b4[:1]
-    def core(b4,i):
+        return b4[1:] + b4[:1]
+
+    def core(b4, i):
         b4 = rotate(b4)
         b4 = [S[c] for c in b4]
         b4[0] ^= rcon[i]
         return b4
 
     i = 1
-    while len(key)<b:
+    while len(key) < b:
         # first 4 bytes
-        t = core(key[-4:],i)
-        i+=1
-        t = [t[ind]^key[ind-n] for ind in range(4)]
+        t = core(key[-4:], i)
+        i += 1
+        t = [t[ind] ^ key[ind - n] for ind in range(4)]
         key = key + t
         # next 12 bytes
         for _ in range(3):
-            t = [t[ind]^key[ind-n] for ind in range(4)]
+            t = [t[ind] ^ key[ind - n] for ind in range(4)]
             key = key + t
         # extra steps for larger key sizes
-        if n==32:
+        if n == 32:
             t = [S[t[ind]] for ind in range(4)]
-            t = [t[ind]^key[ind-n] for ind in range(4)]
+            t = [t[ind] ^ key[ind - n] for ind in range(4)]
             key = key + t
-        if n==32:
+        if n == 32:
             for _ in range(3):
-                t = [t[ind]^key[ind-n] for ind in range(4)]
+                t = [t[ind] ^ key[ind - n] for ind in range(4)]
                 key = key + t
-
 
     return key
 
+
 def aes128round_keys(key):
-    return expand_key(list(map(ord,key)),16,176)
+    return expand_key(list(map(ord, key)), 16, 176)
+
 
 def aes256round_keys(key):
-    return expand_key(list(map(ord,key)),32,240)
+    return expand_key(list(map(ord, key)), 32, 240)
 
-def AddRoundKey(block,round_key):
-    return [block[ind]^round_key[ind] for ind in range(16)]
+
+def AddRoundKey(block, round_key):
+    return [block[ind] ^ round_key[ind] for ind in range(16)]
+
 
 def SubBytes(block):
     return [S[block[ind]]for ind in range(16)]
 
+
 def SubBytesInv(block):
     return [Si[block[ind]]for ind in range(16)]
 
+
 def ShiftRows(block):
-    return [block[0],block[5],block[10],block[15],
-            block[4],block[9],block[14],block[3],
-            block[8],block[13],block[2],block[7],
-            block[12],block[1],block[6],block[11]]
+    return [block[0], block[5], block[10], block[15],
+            block[4], block[9], block[14], block[3],
+            block[8], block[13], block[2], block[7],
+            block[12], block[1], block[6], block[11]]
+
 
 def ShiftRowsInv(block):
-    return [block[0],block[13],block[10],block[7],
-            block[4],block[1],block[14],block[11],
-            block[8],block[5],block[2],block[15],
-            block[12],block[9],block[6],block[3]]
+    return [block[0], block[13], block[10], block[7],
+            block[4], block[1], block[14], block[11],
+            block[8], block[5], block[2], block[15],
+            block[12], block[9], block[6], block[3]]
+
 
 def MixColumns(block):
-    new_block           = block[:]
+    new_block = block[:]
     for i in range(4):
-        new_block[i*4+0] = gfp2[block[i*4]] ^ gfp3[block[i*4+1]] ^ block[i*4+2] ^ block[i*4+3]
-        new_block[i*4+1] = block[i*4] ^ gfp2[block[i*4+1]] ^ gfp3[block[i*4+2]] ^ block[i*4+3]
-        new_block[i*4+2] = block[i*4] ^ block[i*4+1] ^ gfp2[block[i*4+2]] ^ gfp3[block[i*4+3]]
-        new_block[i*4+3] = gfp3[block[i*4]] ^ block[i*4+1] ^ block[i*4+2] ^ gfp2[block[i*4+3]]
+        new_block[i * 4 + 0] = gfp2[block[i * 4]] ^ gfp3[
+            block[i * 4 + 1]] ^ block[i * 4 + 2] ^ block[i * 4 + 3]
+        new_block[i * 4 + 1] = block[i * 4] ^ gfp2[
+            block[i * 4 + 1]] ^ gfp3[block[i * 4 + 2]] ^ block[i * 4 + 3]
+        new_block[i * 4 + 2] = block[i * 4] ^ block[
+            i * 4 + 1] ^ gfp2[block[i * 4 + 2]] ^ gfp3[block[i * 4 + 3]]
+        new_block[i * 4 + 3] = gfp3[block[i * 4]] ^ block[
+            i * 4 + 1] ^ block[i * 4 + 2] ^ gfp2[block[i * 4 + 3]]
     return new_block
 
+
 def MixColumnsInv(block):
-    new_block           = block[:]
+    new_block = block[:]
     for i in range(4):
-        new_block[i*4+0] = gfp14[block[i*4]] ^ gfp11[block[i*4+1]] ^ gfp13[block[i*4+2]] ^ gfp9[block[i*4+3]]
-        new_block[i*4+1] = gfp9[block[i*4]] ^ gfp14[block[i*4+1]] ^ gfp11[block[i*4+2]] ^ gfp13[block[i*4+3]]
-        new_block[i*4+2] = gfp13[block[i*4]] ^ gfp9[block[i*4+1]] ^ gfp14[block[i*4+2]] ^ gfp11[block[i*4+3]]
-        new_block[i*4+3] = gfp11[block[i*4]] ^ gfp13[block[i*4+1]] ^ gfp9[block[i*4+2]] ^ gfp14[block[i*4+3]]
+        new_block[i * 4 + 0] = gfp14[block[i * 4]] ^ gfp11[
+            block[i * 4 + 1]] ^ gfp13[block[i * 4 + 2]] ^ gfp9[block[i * 4 + 3]]
+        new_block[i * 4 + 1] = gfp9[block[i * 4]] ^ gfp14[
+            block[i * 4 + 1]] ^ gfp11[block[i * 4 + 2]] ^ gfp13[block[i * 4 + 3]]
+        new_block[i * 4 + 2] = gfp13[block[i * 4]] ^ gfp9[
+            block[i * 4 + 1]] ^ gfp14[block[i * 4 + 2]] ^ gfp11[block[i * 4 + 3]]
+        new_block[i * 4 + 3] = gfp11[block[i * 4]] ^ gfp13[
+            block[i * 4 + 1]] ^ gfp9[block[i * 4 + 2]] ^ gfp14[block[i * 4 + 3]]
     return new_block
+
 
 def advance_counter(counter):
     number_counter = [ord(c) for c in counter]
-    number_counter[-1]+=1
+    number_counter[-1] += 1
     overflow = True
-    for i in range(len(counter)-1,-1,-1):
+    for i in range(len(counter) - 1, -1, -1):
         if overflow:
-            number_counter[i]+=1
-            if number_counter[i]>255:
-                number_counter[i]=0
+            number_counter[i] += 1
+            if number_counter[i] > 255:
+                number_counter[i] = 0
             else:
                 overflow = False
     return "".join([chr(c) for c in number_counter])
 
+
 @SilenceErrors
 @add_sha256_hmac
-def encrypt_128_cbc(data,key,padding=True,gen_iv=True):
-    if len(key)<16:
-        key = common.null_padding(key,16)
-    elif len(key)>16:
+def encrypt_128_cbc(data, key, padding=True, gen_iv=True):
+    if len(key) < 16:
+        key = common.null_padding(key, 16)
+    elif len(key) > 16:
         h = sha256(key)
-        key = common.xor_str(h[:16],h[16:])
+        key = common.xor_str(h[:16], h[16:])
 
     if padding:
-        data = pkcs7.add_padding(data,16)
+        data = pkcs7.add_padding(data, 16)
         r = ""
 
     if gen_iv:
         iv = os.urandom(16)
         r = iv
     else:
-        iv = "\0"*16
-        r=""
+        iv = "\0" * 16
+        r = ""
 
-    for i in range(0,len(data),16):
-        cipherblock = aes128enc(common.xor_str(data[i:i+16],iv),key)
-        r+=cipherblock
+    for i in range(0, len(data), 16):
+        cipherblock = aes128enc(common.xor_str(data[i:i + 16], iv), key)
+        r += cipherblock
         iv = cipherblock
     return r
 
+
 @SilenceErrors
 @check_sha256_hmac
-def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
-    if len(key)<16:
-        key = common.null_padding(key,16)
-    elif len(key)>16:
+def decrypt_128_cbc(data, key, padding=True, gen_iv=True):
+    if len(key) < 16:
+        key = common.null_padding(key, 16)
+    elif len(key) > 16:
         h = sha256(key)
-        key = common.xor_str(h[:16],h[16:])
+        key = common.xor_str(h[:16], h[16:])
     r = ""
     if gen_iv:
         iv = data[:16]
         data = data[16:]
     else:
-        iv = "\0"*16
+        iv = "\0" * 16
 
-    for i in range(0,len(data),16):
-        cipherblock = data[i:i+16]
-        r+= common.xor_str(aes128dec(cipherblock,key),iv)
+    for i in range(0, len(data), 16):
+        cipherblock = data[i:i + 16]
+        r += common.xor_str(aes128dec(cipherblock, key), iv)
         iv = cipherblock
 
     if padding:
@@ -435,80 +454,86 @@ def decrypt_128_cbc(data,key,padding=True,gen_iv=True):
     else:
         return r
 
-@SilenceErrors
-def encrypt_128_ecb(data,key,padding=True):
-    if len(key)<16:
-        key = common.null_padding(key,16)
-    elif len(key)>16:
-        h = sha256(key)
-        key = common.xor_str(h[:16],h[16:])
-    r = ""
-    if padding:
-        data = pkcs7.add_padding(data,16)
-    for i in range(0,len(data),16):
-        r += aes128enc(data[i:i+16],key)
-    return r
 
 @SilenceErrors
-def decrypt_128_ecb(data,key,padding=True):
-    if len(key)<16:
-        key = common.null_padding(key,16)
-    elif len(key)>16:
+def encrypt_128_ecb(data, key, padding=True):
+    if len(key) < 16:
+        key = common.null_padding(key, 16)
+    elif len(key) > 16:
         h = sha256(key)
-        key = common.xor_str(h[:16],h[16:])
-    key = pkcs7.add_padding(key,16)[:16]
+        key = common.xor_str(h[:16], h[16:])
     r = ""
-    for i in range(0,len(data),16):
-        r += aes128dec(data[i:i+16],key)
+    if padding:
+        data = pkcs7.add_padding(data, 16)
+    for i in range(0, len(data), 16):
+        r += aes128enc(data[i:i + 16], key)
+    return r
+
+
+@SilenceErrors
+def decrypt_128_ecb(data, key, padding=True):
+    if len(key) < 16:
+        key = common.null_padding(key, 16)
+    elif len(key) > 16:
+        h = sha256(key)
+        key = common.xor_str(h[:16], h[16:])
+    key = pkcs7.add_padding(key, 16)[:16]
+    r = ""
+    for i in range(0, len(data), 16):
+        r += aes128dec(data[i:i + 16], key)
     if padding:
         return pkcs7.remove_padding(r)
     else:
         return r
 
+
 @SilenceErrors
 @add_sha256_hmac
-def encrypt_128_ctr(data,key):
-    key = pkcs7.add_padding(key,16)[:16]
+def encrypt_128_ctr(data, key):
+    key = pkcs7.add_padding(key, 16)[:16]
     counter = os.urandom(16)
-    r=counter
-    for i in range(0,len(data),16):
-        encrypted_counter = aes128enc(counter,key)
-        r+= common.xor_str(encrypted_counter,data[i:i+16])
+    r = counter
+    for i in range(0, len(data), 16):
+        encrypted_counter = aes128enc(counter, key)
+        r += common.xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
+
 
 @SilenceErrors
 @check_sha256_hmac
-def decrypt_128_ctr(data,key):
-    key = pkcs7.add_padding(key,16)[:16]
+def decrypt_128_ctr(data, key):
+    key = pkcs7.add_padding(key, 16)[:16]
     counter = data[:16]
     data = data[16:]
     r = ""
-    for i in range(0,len(data),16):
-        encrypted_counter = aes128enc(counter,key)
-        r+= common.xor_str(encrypted_counter,data[i:i+16])
+    for i in range(0, len(data), 16):
+        encrypted_counter = aes128enc(counter, key)
+        r += common.xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
 
-def aes128enc(block,key):
+
+def aes128enc(block, key):
     # expand key
     fullkey = aes128round_keys(key)
     block = [ord(b) for b in block]
     # initial round
-    block = AddRoundKey(block,fullkey[:16])
+    block = AddRoundKey(block, fullkey[:16])
     # Rounds 2-11
-    for n in range(1,10):
+    for n in range(1, 10):
         block = SubBytes(block)
         block = ShiftRows(block)
         block = MixColumns(block)
-        block = AddRoundKey(block,fullkey[n*16:n*16+16])
+        block = AddRoundKey(block, fullkey[n * 16:n * 16 + 16])
     # final round
     block = SubBytes(block)
     block = ShiftRows(block)
-    block = AddRoundKey(block,fullkey[-16:])
+    block = AddRoundKey(block, fullkey[-16:])
     return "".join([chr(b) for b in block])
 
-def aes128dec(block,key):
+
+def aes128dec(block, key):
     # expand key
     fullkey = aes128round_keys(key)
     block = [ord(b) for b in block]
@@ -516,95 +541,99 @@ def aes128dec(block,key):
     # undo final round
     final_round_key = fullkey[-16:]
 
-    block = AddRoundKey(block,final_round_key)
+    block = AddRoundKey(block, final_round_key)
     block = ShiftRowsInv(block)
     block = SubBytesInv(block)
 
-    for n in range(9,0,-1):
-        round_key = fullkey[n*16:n*16+16]
+    for n in range(9, 0, -1):
+        round_key = fullkey[n * 16:n * 16 + 16]
 
-        block = AddRoundKey(block,round_key)
+        block = AddRoundKey(block, round_key)
         block = MixColumnsInv(block)
         block = ShiftRowsInv(block)
         block = SubBytesInv(block)
 
     # Undo initial round
-    block = AddRoundKey(block,fullkey[:16])
+    block = AddRoundKey(block, fullkey[:16])
 
     return "".join([chr(b) for b in block])
 
+
 @SilenceErrors
 @add_sha256_hmac
-def encrypt_256_ctr(data,key):
-    if len(key)<32:
-        key = common.null_padding(key,32)
-    elif len(key)>32:
+def encrypt_256_ctr(data, key):
+    if len(key) < 32:
+        key = common.null_padding(key, 32)
+    elif len(key) > 32:
         key = sha256(key)
     counter = os.urandom(16)
-    r=counter
-    for i in range(0,len(data),16):
-        encrypted_counter = aes256enc(counter,key)
-        r+= common.xor_str(encrypted_counter,data[i:i+16])
+    r = counter
+    for i in range(0, len(data), 16):
+        encrypted_counter = aes256enc(counter, key)
+        r += common.xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
 
+
 @SilenceErrors
 @check_sha256_hmac
-def decrypt_256_ctr(data,key):
-    if len(key)<32:
-        key = common.null_padding(key,32)
-    elif len(key)>32:
+def decrypt_256_ctr(data, key):
+    if len(key) < 32:
+        key = common.null_padding(key, 32)
+    elif len(key) > 32:
         key = sha256(key)
     counter = data[:16]
     data = data[16:]
     r = ""
-    for i in range(0,len(data),16):
-        encrypted_counter = aes256enc(counter,key)
-        r+= common.xor_str(encrypted_counter,data[i:i+16])
+    for i in range(0, len(data), 16):
+        encrypted_counter = aes256enc(counter, key)
+        r += common.xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
 
+
 @SilenceErrors
 @add_sha256_hmac
-def encrypt_256_cbc(data,key,padding=True,gen_iv=True):
-    if len(key)<32:
-        key = common.null_padding(key,32)
-    elif len(key)>32:
+def encrypt_256_cbc(data, key, padding=True, gen_iv=True):
+    if len(key) < 32:
+        key = common.null_padding(key, 32)
+    elif len(key) > 32:
         key = sha256(key)
     if padding:
-        data = pkcs7.add_padding(data,16)
+        data = pkcs7.add_padding(data, 16)
         r = ""
 
     if gen_iv:
         iv = os.urandom(16)
         r = iv
     else:
-        iv = "\0"*16
-        r=""
+        iv = "\0" * 16
+        r = ""
 
-    for i in range(0,len(data),16):
-        cipherblock = aes256enc(common.xor_str(data[i:i+16],iv),key)
-        r+=cipherblock
+    for i in range(0, len(data), 16):
+        cipherblock = aes256enc(common.xor_str(data[i:i + 16], iv), key)
+        r += cipherblock
         iv = cipherblock
     return r
 
+
 @SilenceErrors
 @check_sha256_hmac
-def decrypt_256_cbc(data,key,padding=True,gen_iv=True):
-    if len(key)<32:
-        key = common.null_padding(key,32)
-    elif len(key)>32:
+def decrypt_256_cbc(data, key, padding=True, gen_iv=True):
+    if len(key) < 32:
+        key = common.null_padding(key, 32)
+    elif len(key) > 32:
         key = sha256(key)
     r = ""
     if gen_iv:
         iv = data[:16]
         data = data[16:]
     else:
-        iv = "\0"*16
+        iv = "\0" * 16
 
-    for i in range(0,len(data),16):
-        cipherblock = data[i:i+16]
-        r+= common.xor_str(aes256dec(cipherblock,key),iv)
+    for i in range(0, len(data), 16):
+        cipherblock = data[i:i + 16]
+        r += common.xor_str(aes256dec(cipherblock, key), iv)
         iv = cipherblock
 
     if padding:
@@ -612,50 +641,54 @@ def decrypt_256_cbc(data,key,padding=True,gen_iv=True):
     else:
         return r
 
-def encrypt_256_ecb(data,key,padding=True):
-    if len(key)<32:
-        key = common.null_padding(key,32)
-    elif len(key)>32:
+
+def encrypt_256_ecb(data, key, padding=True):
+    if len(key) < 32:
+        key = common.null_padding(key, 32)
+    elif len(key) > 32:
         key = sha256(key)
     r = ""
     if padding:
-        data = pkcs7.add_padding(data,16)
-    for i in range(0,len(data),16):
-        r += aes256enc(data[i:i+16],key)
+        data = pkcs7.add_padding(data, 16)
+    for i in range(0, len(data), 16):
+        r += aes256enc(data[i:i + 16], key)
     return r
 
-def decrypt_256_ecb(data,key,padding=True):
-    if len(key)<32:
-        key = common.null_padding(key,32)
-    elif len(key)>32:
+
+def decrypt_256_ecb(data, key, padding=True):
+    if len(key) < 32:
+        key = common.null_padding(key, 32)
+    elif len(key) > 32:
         key = sha256(key)
     r = ""
-    for i in range(0,len(data),16):
-        r += aes256dec(data[i:i+16],key)
+    for i in range(0, len(data), 16):
+        r += aes256dec(data[i:i + 16], key)
     if padding:
         return pkcs7.remove_padding(r)
     else:
         return r
 
-def aes256enc(block,key):
+
+def aes256enc(block, key):
     # expand key
     fullkey = aes256round_keys(key)
     block = [ord(b) for b in block]
     # initial round
-    block = AddRoundKey(block,fullkey[:16])
+    block = AddRoundKey(block, fullkey[:16])
     # Rounds 2-11
-    for n in range(1,14):
+    for n in range(1, 14):
         block = SubBytes(block)
         block = ShiftRows(block)
         block = MixColumns(block)
-        block = AddRoundKey(block,fullkey[n*16:n*16+16])
+        block = AddRoundKey(block, fullkey[n * 16:n * 16 + 16])
     # final round
     block = SubBytes(block)
     block = ShiftRows(block)
-    block = AddRoundKey(block,fullkey[-16:])
+    block = AddRoundKey(block, fullkey[-16:])
     return "".join([chr(b) for b in block])
 
-def aes256dec(block,key):
+
+def aes256dec(block, key):
     # expand key
     fullkey = aes256round_keys(key)
     block = [ord(b) for b in block]
@@ -663,38 +696,40 @@ def aes256dec(block,key):
     # undo final round
     final_round_key = fullkey[-16:]
 
-    block = AddRoundKey(block,final_round_key)
+    block = AddRoundKey(block, final_round_key)
     block = ShiftRowsInv(block)
     block = SubBytesInv(block)
 
-    for n in range(13,0,-1):
-        round_key = fullkey[n*16:n*16+16]
+    for n in range(13, 0, -1):
+        round_key = fullkey[n * 16:n * 16 + 16]
 
-        block = AddRoundKey(block,round_key)
+        block = AddRoundKey(block, round_key)
         block = MixColumnsInv(block)
         block = ShiftRowsInv(block)
         block = SubBytesInv(block)
 
     # Undo initial round
-    block = AddRoundKey(block,fullkey[:16])
+    block = AddRoundKey(block, fullkey[:16])
 
     return "".join([chr(b) for b in block])
 
 
 class RNG_CTR(common.RngBase):
+
     "A Random number generator based of AES-128-CTR"
+
     def __init__(self):
         self.key = os.urandom(16)
         self.counter = os.urandom(16)
         self.buf = ""
 
     def update_buffer(self):
-        self.buf += aes128enc(self.counter,self.key)
+        self.buf += aes128enc(self.counter, self.key)
         self.counter = advance_counter(self.counter)
 
     def rand_int8(self):
         "return a psuedorandom integer mod 256"
-        if len(self.buf)<1:
+        if len(self.buf) < 1:
             self.update_buffer()
         r = ord(self.buf[0])
         self.buf = self.buf[1:]
