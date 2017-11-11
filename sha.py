@@ -142,7 +142,7 @@ def check_sha256_hmac(decf):
         ciphertext = data[:-32]
         hmac = data[-32:]
         if hmac != sha256_hmac(ciphertext,key):
-            raise Exception
+            raise Exception("Invalid HMAC")
         plaintext = decf(ciphertext,key)
         return plaintext
     return f

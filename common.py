@@ -72,6 +72,10 @@ def SilenceErrors(f):
         except:
             RAISE_EXCEPTION = True
         if RAISE_EXCEPTION:
-            raise Exception
+            raise Exception("Silenced exception")
 
     return SilentFuction
+
+def hexstr(s):
+    "represpent a string as hex"
+    return ":".join("%02x"%ord(c) for c in s)
