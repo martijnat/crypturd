@@ -1,7 +1,7 @@
 # USE AT YOUR OWN RISK
 
-***Some implementations are likely vulnerable to side-channel attacks.***
-Use with caution.
+I make no guarantees towards the safe implmentaton of these
+algorithms.
 
 # mcrypto
 
