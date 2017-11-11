@@ -390,14 +390,15 @@ def MixColumnsInv(block):
 
 def advance_counter(counter):
     number_counter = [ord(c) for c in counter]
-    number_counter[-1] += 1
     overflow = True
-    for i in range(len(counter) - 1, -1, -1):
+    # Update first 32 as a big-endian number
+    for i in range(8,-1,-1):
         if overflow:
-            number_counter[i] += 1
-            if number_counter[i] > 255:
+            if number_counter[i] == 255:
                 number_counter[i] = 0
+                overflow = True
             else:
+                number_counter[i] += 1
                 overflow = False
     return "".join([chr(c) for c in number_counter])
 
