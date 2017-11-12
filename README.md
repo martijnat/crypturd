@@ -1,6 +1,6 @@
 # USE AT YOUR OWN RISK
 
-I make no guarantees towards the safe implmentaton of these
+I make no guarantees towards the safe implementation of these
 algorithms.
 
 # mcrypto
