@@ -15,22 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import common
-import aes
-import rc4
-import pkcs7
-
-# Default encryption is AES-256-CTR+SHA256-HMAC
-encrypt = aes.encrypt_256_ctr
-decrypt = aes.decrypt_256_ctr
-
-# Default hash is SHA56
-hash = sha.sha256
-
-# Default rng is AES-128-CTR
-rand = aes.rand
-
-__all__ = ["aes",
+__all__ = ["common",
+           "default"
+           "aes",
            "pkcs7",
            "rc4",
            "sha", ]
+
+__version__ = '1.0.0'
+__revision__ = "$Id$"
+version_info = (1, 0, 0, 'final', 0)

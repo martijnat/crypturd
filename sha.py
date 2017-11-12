@@ -20,10 +20,10 @@ BLOCK_SIZE = 64
 DIGEST_SIZE = 32
 BITS_IN_WORD = 32  # w - Number of bits in a word.
 
-from common import rotr_i32 as rotr
-from common import shiftr_i32 as shiftr
-from common import xor_str
-from common import null_padding
+from mcrypto.common import rotr_i32 as rotr
+from mcrypto.common import shiftr_i32 as shiftr
+from mcrypto.common import xor_str
+from mcrypto.common import null_padding
 
 
 def sha256(m):

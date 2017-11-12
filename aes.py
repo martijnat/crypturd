@@ -21,10 +21,9 @@
 # CBC and CTR mode automatically append a SHA256-HMAC
 
 import os
-import pkcs7
-import common
-from sha import add_sha256_hmac, check_sha256_hmac, sha256
-from common import SilenceErrors, CTLT
+from mcrypto import pkcs7
+from mcrypto.sha import add_sha256_hmac, check_sha256_hmac, sha256
+from mcrypto.common import SilenceErrors, CTLT,null_padding,xor_str,RngBase
 
 S = CTLT([0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01,
           0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D,
@@ -407,10 +406,10 @@ def advance_counter(counter):
 @add_sha256_hmac
 def encrypt_128_cbc(data, key, padding=True, gen_iv=True):
     if len(key) < 16:
-        key = common.null_padding(key, 16)
+        key = null_padding(key, 16)
     elif len(key) > 16:
         h = sha256(key)
-        key = common.xor_str(h[:16], h[16:])
+        key = xor_str(h[:16], h[16:])
 
     if padding:
         data = pkcs7.add_padding(data, 16)
@@ -424,7 +423,7 @@ def encrypt_128_cbc(data, key, padding=True, gen_iv=True):
         r = ""
 
     for i in range(0, len(data), 16):
-        cipherblock = aes128enc(common.xor_str(data[i:i + 16], iv), key)
+        cipherblock = aes128enc(xor_str(data[i:i + 16], iv), key)
         r += cipherblock
         iv = cipherblock
     return r
@@ -434,10 +433,10 @@ def encrypt_128_cbc(data, key, padding=True, gen_iv=True):
 @check_sha256_hmac
 def decrypt_128_cbc(data, key, padding=True, gen_iv=True):
     if len(key) < 16:
-        key = common.null_padding(key, 16)
+        key = null_padding(key, 16)
     elif len(key) > 16:
         h = sha256(key)
-        key = common.xor_str(h[:16], h[16:])
+        key = xor_str(h[:16], h[16:])
     r = ""
     if gen_iv:
         iv = data[:16]
@@ -447,7 +446,7 @@ def decrypt_128_cbc(data, key, padding=True, gen_iv=True):
 
     for i in range(0, len(data), 16):
         cipherblock = data[i:i + 16]
-        r += common.xor_str(aes128dec(cipherblock, key), iv)
+        r += xor_str(aes128dec(cipherblock, key), iv)
         iv = cipherblock
 
     if padding:
@@ -459,10 +458,10 @@ def decrypt_128_cbc(data, key, padding=True, gen_iv=True):
 @SilenceErrors
 def encrypt_128_ecb(data, key, padding=True):
     if len(key) < 16:
-        key = common.null_padding(key, 16)
+        key = null_padding(key, 16)
     elif len(key) > 16:
         h = sha256(key)
-        key = common.xor_str(h[:16], h[16:])
+        key = xor_str(h[:16], h[16:])
     r = ""
     if padding:
         data = pkcs7.add_padding(data, 16)
@@ -474,10 +473,10 @@ def encrypt_128_ecb(data, key, padding=True):
 @SilenceErrors
 def decrypt_128_ecb(data, key, padding=True):
     if len(key) < 16:
-        key = common.null_padding(key, 16)
+        key = null_padding(key, 16)
     elif len(key) > 16:
         h = sha256(key)
-        key = common.xor_str(h[:16], h[16:])
+        key = xor_str(h[:16], h[16:])
     key = pkcs7.add_padding(key, 16)[:16]
     r = ""
     for i in range(0, len(data), 16):
@@ -496,7 +495,7 @@ def encrypt_128_ctr(data, key):
     r = counter
     for i in range(0, len(data), 16):
         encrypted_counter = aes128enc(counter, key)
-        r += common.xor_str(encrypted_counter, data[i:i + 16])
+        r += xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
 
@@ -510,7 +509,7 @@ def decrypt_128_ctr(data, key):
     r = ""
     for i in range(0, len(data), 16):
         encrypted_counter = aes128enc(counter, key)
-        r += common.xor_str(encrypted_counter, data[i:i + 16])
+        r += xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
 
@@ -564,14 +563,14 @@ def aes128dec(block, key):
 @add_sha256_hmac
 def encrypt_256_ctr(data, key):
     if len(key) < 32:
-        key = common.null_padding(key, 32)
+        key = null_padding(key, 32)
     elif len(key) > 32:
         key = sha256(key)
     counter = os.urandom(16)
     r = counter
     for i in range(0, len(data), 16):
         encrypted_counter = aes256enc(counter, key)
-        r += common.xor_str(encrypted_counter, data[i:i + 16])
+        r += xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
 
@@ -580,7 +579,7 @@ def encrypt_256_ctr(data, key):
 @check_sha256_hmac
 def decrypt_256_ctr(data, key):
     if len(key) < 32:
-        key = common.null_padding(key, 32)
+        key = null_padding(key, 32)
     elif len(key) > 32:
         key = sha256(key)
     counter = data[:16]
@@ -588,7 +587,7 @@ def decrypt_256_ctr(data, key):
     r = ""
     for i in range(0, len(data), 16):
         encrypted_counter = aes256enc(counter, key)
-        r += common.xor_str(encrypted_counter, data[i:i + 16])
+        r += xor_str(encrypted_counter, data[i:i + 16])
         counter = advance_counter(counter)
     return r
 
@@ -597,7 +596,7 @@ def decrypt_256_ctr(data, key):
 @add_sha256_hmac
 def encrypt_256_cbc(data, key, padding=True, gen_iv=True):
     if len(key) < 32:
-        key = common.null_padding(key, 32)
+        key = null_padding(key, 32)
     elif len(key) > 32:
         key = sha256(key)
     if padding:
@@ -612,7 +611,7 @@ def encrypt_256_cbc(data, key, padding=True, gen_iv=True):
         r = ""
 
     for i in range(0, len(data), 16):
-        cipherblock = aes256enc(common.xor_str(data[i:i + 16], iv), key)
+        cipherblock = aes256enc(xor_str(data[i:i + 16], iv), key)
         r += cipherblock
         iv = cipherblock
     return r
@@ -622,7 +621,7 @@ def encrypt_256_cbc(data, key, padding=True, gen_iv=True):
 @check_sha256_hmac
 def decrypt_256_cbc(data, key, padding=True, gen_iv=True):
     if len(key) < 32:
-        key = common.null_padding(key, 32)
+        key = null_padding(key, 32)
     elif len(key) > 32:
         key = sha256(key)
     r = ""
@@ -634,7 +633,7 @@ def decrypt_256_cbc(data, key, padding=True, gen_iv=True):
 
     for i in range(0, len(data), 16):
         cipherblock = data[i:i + 16]
-        r += common.xor_str(aes256dec(cipherblock, key), iv)
+        r += xor_str(aes256dec(cipherblock, key), iv)
         iv = cipherblock
 
     if padding:
@@ -645,7 +644,7 @@ def decrypt_256_cbc(data, key, padding=True, gen_iv=True):
 
 def encrypt_256_ecb(data, key, padding=True):
     if len(key) < 32:
-        key = common.null_padding(key, 32)
+        key = null_padding(key, 32)
     elif len(key) > 32:
         key = sha256(key)
     r = ""
@@ -658,7 +657,7 @@ def encrypt_256_ecb(data, key, padding=True):
 
 def decrypt_256_ecb(data, key, padding=True):
     if len(key) < 32:
-        key = common.null_padding(key, 32)
+        key = null_padding(key, 32)
     elif len(key) > 32:
         key = sha256(key)
     r = ""
@@ -715,7 +714,7 @@ def aes256dec(block, key):
     return "".join([chr(b) for b in block])
 
 
-class RNG_CTR(common.RngBase):
+class RNG_CTR(RngBase):
 
     "A Random number generator based of AES-128-CTR"
 

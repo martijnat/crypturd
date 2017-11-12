@@ -9,11 +9,19 @@ Implementation of several cryptographic primitives.
 
 # Example usage
 
-    import mcrypto
+    from mcrypto.default import encrypt
+    # default encryption method is aes-256-ctr+sha25-hmac
 
     plaintext = "Attack at dawn"
     key = "Random password."
-    ciphertext = mcrypto.encrypt(plaintext,key) # use a default mode and block size (256-ctr in this case)
+    ciphertext = encrypt(plaintext,key)
+
+# Technical notes
+
+This implementation **only** works correctly with python2. Python3
+will fail because of differences in string encoding. PyPy will
+technically work but introduce side-channel attacks during table
+lookups.
 
 # Block ciphers
 
