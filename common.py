@@ -23,6 +23,7 @@ import time
 # down by about factor 100.
 ctlt = True
 
+minus1_i32 = 2**32 - 1
 
 def random_mod(m):
     x = ord(os.urandom(1)[0])
@@ -46,13 +47,29 @@ def null_padding(s, n):
 
 def shiftr_i32(x, n):
     "shift integer n right by b bits"
-    return (x & 0xffffffff) >> n
+    return _i32((x & 0xffffffff) >> n)
 
+def shiftl_i32(x, n):
+    "shift integer n left by b bits"
+    return shiftr_i32(x,(32-n))
 
 def rotr_i32(x, n):
-    "Rotate integer n right bn b bits"
-    return (((x & 0xffffffff) >> (n & 31)) | (x << (32 - (n & 31)))) & 0xffffffff
+    "Rotate integer n right by b bits"
+    return _i32((((x & 0xffffffff) >> (n & 31)) | (x << (32 - (n & 31)))) & 0xffffffff)
 
+def rotl_i32(x, n):
+    "Rotate integer n left by b bits"
+    return rotr_i32(x,(32-n))
+
+
+def _i8(n):
+    return 0xff & n
+
+def _i16(n):
+    return 0xffff & n
+
+def _i32(n):
+    return 0xffffffff & n
 
 class RngBase():
 
@@ -116,3 +133,22 @@ class CTLT():
             return result
         else:
             return self.table[ind]
+
+def unshift_right(value, shift):
+    result = 0
+    for i in range(0, 32 // shift + 1, 1):
+        partMask = shiftr_i32(minus1_i32 << (32 - shift), shift * i)
+        part = value & partMask
+        value = value ^ shiftr_i32(part, shift)
+        result = result | part
+    return _i32(result)
+
+
+def unshift_left(value, shift, mask):
+    result = 0
+    for i in range(0, 32 // shift + 1, 1):
+        partMask = shiftr_i32(minus1_i32, (32 - shift)) << (shift * i)
+        part = value & partMask
+        value = value ^ (part << shift) & mask
+        result = result | part
+    return _i32(result)

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from mcrypto.common import RngBase
+from mcrypto.common import RngBase,unshift_right,unshift_left,_i8,_i32
 
 # __        __               _             _
 # \ \      / /_ _ _ __ _ __ (_)_ __   __ _| |
@@ -26,14 +26,7 @@ from mcrypto.common import RngBase
 # A Mersenne Twister is not a secure RNG, If you want a secure rng, use aes-ctr.
 
 
-def _i32(n):
-    return 0xffffffff & n
-
-def _i8(n):
-    return n%256
-
 class mt19937(RngBase):
-    1812433253
     "Mersenne Twister algorithm based on the Mersenne prime 2**19937 - 1"
 
     def __init__(self, seed=0):
@@ -74,3 +67,23 @@ class mt19937(RngBase):
         r = self.buf[0]
         self.buf = self.buf[1:]
         return r
+
+
+def untangle(y):
+
+    return y
+
+class mt19937_Clone(mt19937):
+    "Clone a mersine prime twister based of 624 outputs"
+
+    def __init__(self, outputs):
+        self.buf = []
+        self.index = 624
+        self.mt = [0] * 624
+        for i in range(0, 624):
+            y = outputs[i]
+            y = unshift_right(y, 18)
+            y = unshift_left(y, 15, 4022730752)
+            y = unshift_left(y, 7, 2636928640)
+            y = unshift_right(y, 11)
+            self.mt[i] = y
