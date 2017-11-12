@@ -15,12 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ["common",
-           "default"
-           "aes",
-           "pkcs7",
-           "rc4",
-           "sha", ]
+__all__ = [
+    "aes",
+    "common",
+    "default"
+    "mt19937"
+    "pkcs7",
+    "rc4",
+    "sha",
+]
 
 __version__ = '1.0.0'
 __revision__ = "$Id$"
