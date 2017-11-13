@@ -28,13 +28,16 @@ from mcrypto.common import xor_str
 from mcrypto.common import null_padding
 
 
-def sha_add_length_padding(m):
-    L = len(m)
+def SHA_padding(L):
     appendix = '\x80'
     appendix += '\x00' * ((55 - L) % 64)
     for bitshift in range(64 - 8, -8, -8):
         appendix += chr((L >> bitshift) % 256)
-    return m + appendix
+    return appendix
+
+def sha_add_length_padding(m):
+    L = len(m)
+    return m + SHA_padding(L)
 
 def sha256(m):
     "Sha256 on a complete message"
