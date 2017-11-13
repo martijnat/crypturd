@@ -21,10 +21,20 @@ DIGEST_SIZE = 32
 BITS_IN_WORD = 32  # w - Number of bits in a word.
 
 from mcrypto.common import rotr_i32 as rotr
+from mcrypto.common import rotl_i32 as rotl
+from mcrypto.common import _i32
 from mcrypto.common import shiftr_i32 as shiftr
 from mcrypto.common import xor_str
 from mcrypto.common import null_padding
 
+
+def sha_add_length_padding(m):
+    L = len(m)
+    appendix = '\x80'
+    appendix += '\x00' * ((55 - L) % 64)
+    for bitshift in range(64 - 8, -8, -8):
+        appendix += chr((L >> bitshift) % 256)
+    return m + appendix
 
 def sha256(m):
     "Sha256 on a complete message"
@@ -50,14 +60,7 @@ def sha256(m):
          0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
          0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2]
     # Pre-processing
-    L = len(m)
-    appendix = '\x80'
-    appendix += '\x00' * ((55 - L) % 64)
-    for bitshift in range(64 - 8, -8, -8):
-        appendix += chr((L >> bitshift) % 256)
-
-    # Process the message in successive 512-bit chunks:
-    m = m + appendix
+    m = sha_add_length_padding(m)
 
     for offset in range(0, len(m), 64):
         chunk = m[offset:offset + 64]
@@ -72,10 +75,9 @@ def sha256(m):
         # Extend the first 16 words into the remaining 48 words w[16..63] of the
         # message schedule array:
         for i in range(16, 64):
-            s0 = rotr(w[i - 15], 7) ^ rotr(
-                w[i - 15], 18) ^ shiftr(w[i - 15], 3)
+            s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ shiftr(w[i - 15], 3)
             s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ shiftr(w[i - 2], 10)
-            w[i] = w[i - 16] + s0 + w[i - 7] + s1
+            w[i] = _i32(w[i - 16] + s0 + w[i - 7] + s1)
 
         # Initialize working variables to current hash value:
         a = h0
@@ -90,7 +92,6 @@ def sha256(m):
         # Compression function main loop:
         for i in range(0, 64):
             S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)
-            # S1 = sigma1(e)
             ch = (e & f) ^ ((~e) & g)
             temp1 = h + S1 + ch + k[i] + w[i]
             S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)
@@ -100,11 +101,11 @@ def sha256(m):
             h = g
             g = f
             f = e
-            e = d + temp1
+            e = _i32(d + temp1)
             d = c
             c = b
             b = a
-            a = temp1 + temp2
+            a = _i32(temp1 + temp2)
 
         # Add the compressed chunk to the current hash value:
         h0 = h0 + a
@@ -151,3 +152,73 @@ def check_sha256_hmac(decf):
         plaintext = decf(ciphertext, key)
         return plaintext
     return f
+
+def sha1(m):
+    # Note 1: All variables are unsigned 32-bit quantities and wrap modulo 232 when calculating, except for
+    #      ml, the message length, which is a 64-bit quantity, and
+    #      hh, the message digest, which is a 160-bit quantity.
+    # Note 2: All constants in this pseudo code are in big endian.
+    #         Within each word, the most significant byte is stored in the leftmost byte position
+
+    h0 = 0x67452301
+    h1 = 0xEFCDAB89
+    h2 = 0x98BADCFE
+    h3 = 0x10325476
+    h4 = 0xC3D2E1F0
+
+
+    m = sha_add_length_padding(m)
+
+    for offset in range(0, len(m), 64):
+        chunk = m[offset:offset + 64]
+
+        w = [0 for _ in range(80)]
+        for i in range(0, 16):
+            w[i] = ((ord(chunk[i * 4 + 0]) << 24) +
+                    (ord(chunk[i * 4 + 1]) << 16) +
+                    (ord(chunk[i * 4 + 2]) << 8) +
+                    (ord(chunk[i * 4 + 3]) << 0))
+
+        # Extend the sixteen 32-bit words into eighty 32-bit words:
+        for i in range(16,80):
+            w[i] = rotl(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16],1)
+
+            a = h0
+            b = h1
+            c = h2
+            d = h3
+            e = h4
+
+
+        for i in range(0,80):
+            if i >=0 and i<20:
+                f = (b & c) | ((~b) & d)
+                k = 0x5A827999
+            elif i >=20 and i<40:
+                f = b ^ c ^ d
+                k = 0x6ED9EBA1
+            elif i >=40 and i<60:
+                f = (b & c) | (b & d) | (c & d)
+                k = 0x8F1BBCDC
+            elif i >=60 and i<80:
+                f = b ^ c ^ d
+                k = 0xCA62C1D6
+
+            temp = _i32(rotl(a,5) + f + e + k + w[i])
+            e = d
+            d = c
+            c = rotl(b,30)
+            b = a
+            a = temp
+
+        h0 = _i32(h0 + a)
+        h1 = _i32(h1 + b)
+        h2 = _i32(h2 + c)
+        h3 = _i32(h3 + d)
+        h4 = _i32(h4 + e)
+
+    digest = ""
+    for h in h0, h1, h2, h3, h4:
+        for bitshift in 24, 16, 8, 0:
+            digest += chr((h >> bitshift) % 256)
+    return digest

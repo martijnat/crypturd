@@ -29,14 +29,15 @@ lookups.
 
 # Hash algorithms
 
+- SHA1
 - SHA256
 - SHA256-HMAC
 
 # Random number generators
 
 - AES-128-CTR
-- RC4 (cryptographically insecure RNG)
-- MT19937 (cryptographically insecure RNG)
+- RC4
+- MT19937
 
 # Padding schemes
 
