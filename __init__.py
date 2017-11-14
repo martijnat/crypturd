@@ -19,6 +19,7 @@ __all__ = [
     "aes",
     "common",
     "default",
+    "md4",
     "mt19937",
     "pkcs7",
     "rc4",

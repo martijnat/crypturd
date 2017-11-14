@@ -29,6 +29,7 @@ lookups.
 
 # Hash algorithms
 
+- MD4
 - SHA1
 - SHA256
 - SHA256-HMAC
