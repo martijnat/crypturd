@@ -130,8 +130,7 @@ def sha256(m):
 def sha256_hmac(data, key):
     if len(key) > 32:
         key = sha256(key)
-    elif key < 32:
-        key = null_padding(key, 64)
+    key = null_padding(key, 64)
     o_key_pad = xor_str(key, '\x5c' * 64)
     i_key_pad = xor_str(key, '\x36' * 64)
     return sha256(o_key_pad + sha256(i_key_pad + data))
@@ -217,3 +216,11 @@ def sha1(m):
         for bitshift in 24, 16, 8, 0:
             digest += chr((h >> bitshift) % 256)
     return digest
+
+def sha1_hmac(data, key):
+    if len(key) > 20:
+        key = sha1(key)
+    key = null_padding(key, 20)
+    o_key_pad = xor_str(key, '\x5c' * 20)
+    i_key_pad = xor_str(key, '\x36' * 20)
+    return sha1(o_key_pad + sha1(i_key_pad + data))
