@@ -25,6 +25,7 @@ ctlt = True
 
 minus1_i32 = 2**32 - 1
 
+
 def xor_str(s1, s2):
     "xor two strings of equal size"
     return "".join([chr(ord(c1) ^ ord(c2)) for c1, c2 in zip(s1, s2)])
@@ -42,27 +43,33 @@ def shiftr_i32(x, n):
     "shift integer n right by b bits"
     return _i32((x & 0xffffffff) >> n)
 
+
 def shiftl_i32(x, n):
     "shift integer n left by b bits"
-    return shiftr_i32(x,(32-n))
+    return shiftr_i32(x, (32 - n))
+
 
 def rotr_i32(x, n):
     "Rotate integer n right by b bits"
     return _i32((((x & 0xffffffff) >> (n & 31)) | (x << (32 - (n & 31)))) & 0xffffffff)
 
+
 def rotl_i32(x, n):
     "Rotate integer n left by b bits"
-    return rotr_i32(x,(32-n))
+    return rotr_i32(x, (32 - n))
 
 
 def _i8(n):
     return 0xff & n
 
+
 def _i16(n):
     return 0xffff & n
 
+
 def _i32(n):
     return 0xffffffff & n
+
 
 class RngBase():
 
@@ -126,6 +133,7 @@ class CTLT():
             return result
         else:
             return self.table[ind]
+
 
 def unshift_right(value, shift):
     result = 0

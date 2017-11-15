@@ -31,9 +31,11 @@ def SHA_padding(L):
         appendix += chr((L >> bitshift) % 256)
     return appendix
 
+
 def sha_add_length_padding(m):
     L = len(m)
     return m + SHA_padding(L)
+
 
 def sha256(m):
     "Sha256 on a complete message"
@@ -74,7 +76,8 @@ def sha256(m):
         # Extend the first 16 words into the remaining 48 words w[16..63] of the
         # message schedule array:
         for i in range(16, 64):
-            s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ shiftr(w[i - 15], 3)
+            s0 = rotr(w[i - 15], 7) ^ rotr(
+                w[i - 15], 18) ^ shiftr(w[i - 15], 3)
             s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ shiftr(w[i - 2], 10)
             w[i] = _i32(w[i - 16] + s0 + w[i - 7] + s1)
 
@@ -152,19 +155,20 @@ def check_sha256_hmac(decf):
         return plaintext
     return f
 
+
 def sha1(m):
     # Note 1: All variables are unsigned 32-bit quantities and wrap modulo 232 when calculating, except for
     #      ml, the message length, which is a 64-bit quantity, and
     #      hh, the message digest, which is a 160-bit quantity.
     # Note 2: All constants in this pseudo code are in big endian.
-    #         Within each word, the most significant byte is stored in the leftmost byte position
+    # Within each word, the most significant byte is stored in the leftmost
+    # byte position
 
     h0 = 0x67452301
     h1 = 0xEFCDAB89
     h2 = 0x98BADCFE
     h3 = 0x10325476
     h4 = 0xC3D2E1F0
-
 
     m = sha_add_length_padding(m)
 
@@ -179,8 +183,8 @@ def sha1(m):
                     (ord(chunk[i * 4 + 3]) << 0))
 
         # Extend the sixteen 32-bit words into eighty 32-bit words:
-        for i in range(16,80):
-            w[i] = rotl(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16],1)
+        for i in range(16, 80):
+            w[i] = rotl(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1)
 
             a = h0
             b = h1
@@ -188,25 +192,24 @@ def sha1(m):
             d = h3
             e = h4
 
-
-        for i in range(0,80):
-            if i >=0 and i<20:
+        for i in range(0, 80):
+            if i >= 0 and i < 20:
                 f = (b & c) | ((~b) & d)
                 k = 0x5A827999
-            elif i >=20 and i<40:
+            elif i >= 20 and i < 40:
                 f = b ^ c ^ d
                 k = 0x6ED9EBA1
-            elif i >=40 and i<60:
+            elif i >= 40 and i < 60:
                 f = (b & c) | (b & d) | (c & d)
                 k = 0x8F1BBCDC
-            elif i >=60 and i<80:
+            elif i >= 60 and i < 80:
                 f = b ^ c ^ d
                 k = 0xCA62C1D6
 
-            temp = _i32(rotl(a,5) + f + e + k + w[i])
+            temp = _i32(rotl(a, 5) + f + e + k + w[i])
             e = d
             d = c
-            c = rotl(b,30)
+            c = rotl(b, 30)
             b = a
             a = temp
 

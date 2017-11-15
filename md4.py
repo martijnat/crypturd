@@ -18,11 +18,12 @@
 from mcrypto.common import rotl_i32 as rotl
 from mcrypto.common import _i32
 
+
 def md4_padding(L):
     appendix = '\x80'
     appendix += '\x00' * ((55 - L) % 64)
     for bitshift in range(0, 64, 8):
-        appendix += chr(((L*8) >> bitshift) % 256)
+        appendix += chr(((L * 8) >> bitshift) % 256)
     return appendix
 
 
@@ -38,7 +39,6 @@ def md4(m):
     B = 0xefcdab89
     C = 0x98badcfe
     D = 0x10325476
-
 
     m = md4_add_length_padding(m)
 
@@ -143,4 +143,3 @@ def round2(a, b, c, d, k, s, X):
 
 def round3(a, b, c, d, k, s, X):
     return rotl(a + H(b, c, d) + X[k] + 0x6ed9eba1, s)
-

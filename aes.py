@@ -23,7 +23,7 @@
 import os
 from mcrypto import pkcs7
 from mcrypto.sha import add_sha256_hmac, check_sha256_hmac, sha256
-from mcrypto.common import SilenceErrors, CTLT,null_padding,xor_str,RngBase
+from mcrypto.common import SilenceErrors, CTLT, null_padding, xor_str, RngBase
 
 S = CTLT([0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01,
           0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D,
@@ -391,7 +391,7 @@ def advance_counter(counter):
     number_counter = [ord(c) for c in counter]
     overflow = True
     # Update first 32 as a big-endian number
-    for i in range(8,-1,-1):
+    for i in range(8, -1, -1):
         if overflow:
             if number_counter[i] == 255:
                 number_counter[i] = 0

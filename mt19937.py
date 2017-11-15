@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from mcrypto.common import RngBase,unshift_right,unshift_left,_i8,_i32
+from mcrypto.common import RngBase, unshift_right, unshift_left, _i8, _i32
 
 # __        __               _             _
 # \ \      / /_ _ _ __ _ __ (_)_ __   __ _| |
@@ -23,10 +23,12 @@ from mcrypto.common import RngBase,unshift_right,unshift_left,_i8,_i32
 #   \ V  V / (_| | |  | | | | | | | | (_| |_|
 #    \_/\_/ \__,_|_|  |_| |_|_|_| |_|\__, (_)
 #                                    |___/
-# A Mersenne Twister is not a secure RNG, If you want a secure rng, use aes-ctr.
+# A Mersenne Twister is not a secure RNG, If you want a secure rng, use
+# aes-ctr.
 
 
 class mt19937(RngBase):
+
     "Mersenne Twister algorithm based on the Mersenne prime 2**19937 - 1"
 
     def __init__(self, seed=0):
@@ -35,7 +37,8 @@ class mt19937(RngBase):
         self.mt = [0] * 624
         self.mt[0] = seed
         for i in range(1, 624):
-            self.mt[i] = _i32(1812433253 * (self.mt[i - 1] ^ self.mt[i - 1] >> 30) + i)
+            self.mt[i] = _i32(
+                1812433253 * (self.mt[i - 1] ^ self.mt[i - 1] >> 30) + i)
 
     def update_buffer(self):
         if self.index >= 624:
@@ -48,12 +51,12 @@ class mt19937(RngBase):
         y = y ^ y >> 18
 
         self.index = self.index + 1
-        self.buf += [_i8(y>>24), _i8(y>>16), _i8(y>>8), _i8(y),]
+        self.buf += [_i8(y >> 24), _i8(y >> 16), _i8(y >> 8), _i8(y), ]
 
     def twist(self):
         for i in range(624):
             y = _i32((self.mt[i] & 0x80000000) +
-                       (self.mt[(i + 1) % 624] & 0x7fffffff))
+                     (self.mt[(i + 1) % 624] & 0x7fffffff))
             self.mt[i] = self.mt[(i + 397) % 624] ^ y >> 1
 
             if y % 2 != 0:
@@ -68,7 +71,9 @@ class mt19937(RngBase):
         self.buf = self.buf[1:]
         return r
 
+
 class mt19937_Clone(mt19937):
+
     "Clone a mersine prime twister based of 624 outputs"
 
     def __init__(self, outputs):
