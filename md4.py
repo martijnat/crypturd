@@ -22,7 +22,7 @@ def md4_padding(L):
     appendix = '\x80'
     appendix += '\x00' * ((55 - L) % 64)
     for bitshift in range(0, 64, 8):
-        appendix += chr((L >> bitshift) % 256)
+        appendix += chr(((L*8) >> bitshift) % 256)
     return appendix
 
 
