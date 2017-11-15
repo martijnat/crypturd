@@ -16,10 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-BLOCK_SIZE = 64
-DIGEST_SIZE = 32
-BITS_IN_WORD = 32  # w - Number of bits in a word.
-
 from mcrypto.common import rotr_i32 as rotr
 from mcrypto.common import rotl_i32 as rotl
 from mcrypto.common import _i32

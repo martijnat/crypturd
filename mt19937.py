@@ -68,11 +68,6 @@ class mt19937(RngBase):
         self.buf = self.buf[1:]
         return r
 
-
-def untangle(y):
-
-    return y
-
 class mt19937_Clone(mt19937):
     "Clone a mersine prime twister based of 624 outputs"
 

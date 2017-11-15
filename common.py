@@ -25,13 +25,6 @@ ctlt = True
 
 minus1_i32 = 2**32 - 1
 
-def random_mod(m):
-    x = ord(os.urandom(1)[0])
-    while x >= m:
-        x = ord(os.urandom(1)[0])
-    return m
-
-
 def xor_str(s1, s2):
     "xor two strings of equal size"
     return "".join([chr(ord(c1) ^ ord(c2)) for c1, c2 in zip(s1, s2)])
