@@ -28,7 +28,7 @@ def SHA_padding(L):
     appendix = '\x80'
     appendix += '\x00' * ((55 - L) % 64)
     for bitshift in range(64 - 8, -8, -8):
-        appendix += chr((L >> bitshift) % 256)
+        appendix += chr((L*8 >> bitshift) % 256)
     return appendix
 
 
@@ -157,13 +157,6 @@ def check_sha256_hmac(decf):
 
 
 def sha1(m):
-    # Note 1: All variables are unsigned 32-bit quantities and wrap modulo 232 when calculating, except for
-    #      ml, the message length, which is a 64-bit quantity, and
-    #      hh, the message digest, which is a 160-bit quantity.
-    # Note 2: All constants in this pseudo code are in big endian.
-    # Within each word, the most significant byte is stored in the leftmost
-    # byte position
-
     h0 = 0x67452301
     h1 = 0xEFCDAB89
     h2 = 0x98BADCFE
