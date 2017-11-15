@@ -111,7 +111,7 @@ def SilenceErrors(f):
 
 def hexstr(s):
     "represpent a string as hex"
-    return ":".join("%02x" % ord(c) for c in s)
+    return "".join("%02x" % ord(c) for c in s)
 
 
 class CTLT():
