@@ -29,3 +29,13 @@ __all__ = [
 __version__ = '1.0.0'
 __revision__ = "$Id$"
 version_info = (1, 0, 0, 'final', 0)
+
+# load everything for easy use
+from mcrypto.aes import *
+from mcrypto.common import *
+from mcrypto.default import *
+from mcrypto.md4 import *
+from mcrypto.mt19937 import *
+from mcrypto.pkcs7 import *
+from mcrypto.rc4 import *
+from mcrypto.sha import *
