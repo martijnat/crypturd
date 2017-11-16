@@ -40,8 +40,6 @@ def test_generic_hash(alg, message, h):
         print("Expected  %s" % repr(h))
         print("Got       %s" % repr(mcrypto.common.hexstr(alg(message))))
         quit(1)
-        # print("(%s, %s),"%(repr(message),repr(mcrypto.common.hexstr(alg(message)))))
-
 
 def test_aes():
     # Test primitives with null-data and null-key
@@ -98,8 +96,10 @@ def test_md4():
                  ("a", "bde52cb31de33e46245e05fbdbd6fb24"),
                  ("abc", "a448017aaf21d8525fc10ae87aa6729d"),
                  ("message digest", "d9130a8164549fe818874806e1c7014b"),
-                 ("abcdefghijklmnopqrstuvwxyz", "d79e1c308aa5bbcdeea8ed63df412da9"),
-                 ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", "043f8582f241db351ce627e153e7f0e4"),
+                 ("abcdefghijklmnopqrstuvwxyz",
+                  "d79e1c308aa5bbcdeea8ed63df412da9"),
+                 ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+                  "043f8582f241db351ce627e153e7f0e4"),
                  ("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "e33b4ddc9c38f2199c3e7b164fcc0536"), ]:
         test_generic_hash(mcrypto.md4.md4, m, h)
 
@@ -136,19 +136,28 @@ def test_sha():
     for m, h in [('', 'da39a3ee5e6b4b0d3255bfef95601890afd80709'),
                  ('a', '86f7e437faa5a7fce15d1ddcb9eaeaea377667b8'),
                  ('abc', 'a9993e364706816aba3e25717850c26c9cd0d89d'),
-                 ('message digest', 'c12252ceda8be8994d5fa0290a47231c1d16aae3'),
-                 ('abcdefghijklmnopqrstuvwxyz', '32d10c7b8cf96570ca04ce37f2a19d84240d3a89'),
-                 ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', '761c457bf73b14d27e9e9265c46f4b4dda11f940'),
-                 ('12345678901234567890123456789012345678901234567890123456789012345678901234567890', '50abf5706a150990a08b2c5ea40fa0e585554732'),]:
+                 ('message digest',
+                  'c12252ceda8be8994d5fa0290a47231c1d16aae3'),
+                 ('abcdefghijklmnopqrstuvwxyz',
+                  '32d10c7b8cf96570ca04ce37f2a19d84240d3a89'),
+                 ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+                  '761c457bf73b14d27e9e9265c46f4b4dda11f940'),
+                 ('12345678901234567890123456789012345678901234567890123456789012345678901234567890', '50abf5706a150990a08b2c5ea40fa0e585554732'), ]:
         test_generic_hash(mcrypto.sha.sha1, m, h)
 
-    for m, h in [('a', 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb'),
-                 ('abc', 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'),
-                 ('message digest', 'f7846f55cf23e14eebeab5b4e1550cad5b509e3348fbc4efa3a1413d393cb650'),
-                 ('abcdefghijklmnopqrstuvwxyz', '71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73'),
-                 ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 'db4bfcbd4da0cd85a60c3c37d3fbd8805c77f15fc6b1fdfe614ee0a7c8fdb4c0'),
-                 ('12345678901234567890123456789012345678901234567890123456789012345678901234567890', 'f371bc4a311f2b009eef952dd83ca80e2b60026c8e935592d0f9c308453c813e'),]:
+    for m, h in [(
+        'a', 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb'),
+        ('abc',
+         'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'),
+                 ('message digest',
+                  'f7846f55cf23e14eebeab5b4e1550cad5b509e3348fbc4efa3a1413d393cb650'),
+                 ('abcdefghijklmnopqrstuvwxyz',
+                  '71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73'),
+                 ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+                  'db4bfcbd4da0cd85a60c3c37d3fbd8805c77f15fc6b1fdfe614ee0a7c8fdb4c0'),
+                 ('12345678901234567890123456789012345678901234567890123456789012345678901234567890', 'f371bc4a311f2b009eef952dd83ca80e2b60026c8e935592d0f9c308453c813e'), ]:
         test_generic_hash(mcrypto.sha.sha256, m, h)
+
 
 def test_all():
     test_aes()

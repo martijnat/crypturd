@@ -28,7 +28,7 @@ def SHA_padding(L):
     appendix = '\x80'
     appendix += '\x00' * ((55 - L) % 64)
     for bitshift in range(64 - 8, -8, -8):
-        appendix += chr((L*8 >> bitshift) % 256)
+        appendix += chr((L * 8 >> bitshift) % 256)
     return appendix
 
 
@@ -40,7 +40,6 @@ def sha_add_length_padding(m):
 def sha256(m):
     "Sha256 on a complete message"
 
-    # Initialize hash values
     h0 = 0x6a09e667
     h1 = 0xbb67ae85
     h2 = 0x3c6ef372
@@ -50,7 +49,6 @@ def sha256(m):
     h6 = 0x1f83d9ab
     h7 = 0x5be0cd19
 
-    # Initialize array of round constants
     k = [
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
          0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -60,21 +58,19 @@ def sha256(m):
          0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
          0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
          0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2]
-    # Pre-processing
+
+    # padd to blocks of 64 bytes
     m = sha_add_length_padding(m)
 
     for offset in range(0, len(m), 64):
         chunk = m[offset:offset + 64]
-        # The initial values in w[0..63] don't matter
         w = [0 for _ in range(64)]
-        # copy chunk into first 16 words w[0..15] of the message schedule array
         for i in range(0, 16):
             w[i] = ((ord(chunk[i * 4 + 0]) << 24) +
                     (ord(chunk[i * 4 + 1]) << 16) +
                     (ord(chunk[i * 4 + 2]) << 8) +
                     (ord(chunk[i * 4 + 3]) << 0))
-        # Extend the first 16 words into the remaining 48 words w[16..63] of the
-        # message schedule array:
+
         for i in range(16, 64):
             s0 = rotr(w[i - 15], 7) ^ rotr(
                 w[i - 15], 18) ^ shiftr(w[i - 15], 3)
@@ -157,10 +153,10 @@ def check_sha256_hmac(decf):
 
 def sha1(m):
     h0 = 0x67452301
-    h1 = 0xEFCDAB89
-    h2 = 0x98BADCFE
+    h1 = 0xefcdab89
+    h2 = 0x98badcfe
     h3 = 0x10325476
-    h4 = 0xC3D2E1F0
+    h4 = 0xc3d2e1f0
 
     m = sha_add_length_padding(m)
 
@@ -174,15 +170,14 @@ def sha1(m):
                     (ord(chunk[i * 4 + 2]) << 8) +
                     (ord(chunk[i * 4 + 3]) << 0))
 
-        # Extend the sixteen 32-bit words into eighty 32-bit words:
         for i in range(16, 80):
             w[i] = rotl(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1)
 
-            a = h0
-            b = h1
-            c = h2
-            d = h3
-            e = h4
+        a = h0
+        b = h1
+        c = h2
+        d = h3
+        e = h4
 
         for i in range(0, 80):
             if i >= 0 and i < 20:
@@ -216,6 +211,7 @@ def sha1(m):
         for bitshift in 24, 16, 8, 0:
             digest += chr((h >> bitshift) % 256)
     return digest
+
 
 def sha1_hmac(data, key):
     if len(key) > 20:
