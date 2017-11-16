@@ -17,6 +17,7 @@
 
 import sys
 import time
+import os
 
 # Force the use of constant time lookup tables to prevent time based
 # side-channel attacks. When enabled, encryption and decryption slow
@@ -153,3 +154,35 @@ def unshift_left(value, shift, mask):
         value = value ^ (part << shift) & mask
         result = result | part
     return _i32(result)
+
+def is_prime(x):
+    if x<2:
+        return False
+    elif x==2:
+        return True
+    d = 3
+    while d*d<=x:
+        if x%d==0:
+            return False
+        d+=2
+    return True
+
+def random_mod(x):
+    p=1
+    while 2**p<x:
+        p+=1
+    b = (p+7)//8
+    r = 0
+    for _ in range(b):
+        r = r*256 + ord(os.urandom(1))
+    r = r%(2**p)
+    if r<x:
+        return r
+    else:
+        return random_mod(x)
+
+def random_prime_mod(x):
+    r = random_mod(x)
+    while not is_prime(r):
+        r = random_mod(x)
+    return r
