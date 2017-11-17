@@ -186,3 +186,43 @@ def random_prime_mod(x):
     while not is_prime(r):
         r = random_mod(x)
     return r
+
+def modexp(x,p,n):
+    if p<=0:
+        return 1
+    elif p==1:
+        return x%n
+    while p%2==0:
+        x = (x*x)%n
+        p = p//2
+    return (x*modexp(x,p-1,n))%n
+
+def int2bigendian(n):
+    r = ""
+    while n>0:
+        r = chr(n%256) + r
+        n = n//256
+    return r
+
+def int2littleendian(n):
+    r = ""
+    while n>0:
+        r = r + chr(n%256)
+        n = n//256
+    return r
+
+
+
+def bigendian2int(r):
+    n =0
+    while len(r)>0:
+        n = n*256 + ord(r[0])
+        r = r[1:]
+    return n
+
+def littleendian2int(r):
+    n =0
+    while len(r)>0:
+        n = n*256 + ord(r[-1])
+        r = r[:-1]
+    return n
