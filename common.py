@@ -197,18 +197,22 @@ def modexp(x,p,n):
         p = p//2
     return (x*modexp(x,p-1,n))%n
 
-def int2bigendian(n):
+def int2bigendian(n,minlen=0):
     r = ""
     while n>0:
         r = chr(n%256) + r
         n = n//256
+    while len(r)<minlen:
+        r = "\0"+r
     return r
 
-def int2littleendian(n):
+def int2littleendian(n,minlen=0):
     r = ""
     while n>0:
         r = r + chr(n%256)
         n = n//256
+    while len(r)<minlen:
+        r = r+"\0"
     return r
 
 

@@ -26,13 +26,13 @@ lookups.
 # Block ciphers
 
 - AES (128/256 bit) (ECB/CBC/CTR) (SHA256-HMAC)
+- ChaCha20
 
 # Hash algorithms
 
 - MD4
 - SHA1
 - SHA256
-- SHA256-HMAC
 
 # Random number generators
 

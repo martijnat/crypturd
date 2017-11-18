@@ -17,6 +17,7 @@
 
 __all__ = [
     "aes",
+    "chacha20",
     "common",
     "default",
     "md4",
@@ -32,6 +33,7 @@ version_info = (1, 0, 0, 'final', 0)
 
 # load everything for easy use
 from mcrypto.aes import *
+from mcrypto.chacha20 import *
 from mcrypto.common import *
 from mcrypto.default import *
 from mcrypto.md4 import *

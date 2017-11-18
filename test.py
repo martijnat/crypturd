@@ -64,6 +64,22 @@ def test_aes():
                 assert ciphertext != plaintext
                 assert dec(ciphertext, key) == plaintext
 
+def test_chacha20():
+    key = [0x03020100,  0x07060504,  0x0b0a0908,  0x0f0e0d0c,
+           0x13121110,  0x17161514,  0x1b1a1918,  0x1f1e1d1c,]
+    counter = [0x00000001,]
+    nonce = [0x09000000,  0x4a000000,  0x00000000,]
+    ciphertext = mcrypto.chacha20.chacha20_block(key,counter,nonce)
+    ref = ('10f1e7e4d13b5915500fdd1fa32071c4'
+           +'c7d1f4c733c068030422aa9ac3d46c4e'
+           +'d2826446079faa0914c2d705d98b02a2'
+           +'b5129cd1de164eb9cbd083e8a2503c4e')
+    assert mcrypto.hexstr(ciphertext) == ref
+    for key in [os.urandom(i) for i in [0, 5, 16, 32, 33]]:
+        for plaintext in [os.urandom(j) for j in [0, 16, 32, 33, 1000]]:
+            assert mcrypto.chacha20_decrypt(mcrypto.chacha20_encrypt(plaintext,key),key) == plaintext
+
+
 
 def test_default():
     # check that encryption/decryption works
@@ -154,6 +170,7 @@ def test_sha():
 
 def test_all():
     test_aes()
+    test_chacha20()
     test_default()
     test_md4()
     test_mt19937()
