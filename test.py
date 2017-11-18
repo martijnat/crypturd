@@ -17,14 +17,7 @@
 
 # Module for testing all other modules
 
-import mcrypto.aes
-import mcrypto.common
-import mcrypto.default
-import mcrypto.md4
-import mcrypto.mt19937
-import mcrypto.pkcs7
-import mcrypto.rc4
-import mcrypto.sha
+import mcrypto
 import os
 
 # Speed up this module at the cost of revealing our secret keys
@@ -101,18 +94,18 @@ def test_md4():
                  ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
                   "043f8582f241db351ce627e153e7f0e4"),
                  ("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "e33b4ddc9c38f2199c3e7b164fcc0536"), ]:
-        test_generic_hash(mcrypto.md4.md4, m, h)
+        test_generic_hash(mcrypto.md4, m, h)
 
 
 def test_mt19937():
-    orig = mcrypto.mt19937.mt19937(ord(os.urandom(1)))
+    orig = mcrypto.mt19937(ord(os.urandom(1)))
     for _ in range(1248):
         # check that all outputs are in the range 0.0-1.0
         assert abs(orig.rand() - 0.5) <= 0.5
 
     # check that we can clone an instance
     outputs = [orig.rand_int32() for _ in range(624)]
-    clone = mcrypto.mt19937.mt19937_Clone(outputs)
+    clone = mcrypto.mt19937_Clone(outputs)
     for i in range(1248):
         assert orig.rand() == clone.rand()
 
@@ -126,7 +119,7 @@ def test_pkcs7():
 
 
 def test_rc4():
-    r = mcrypto.rc4.rc4().rand
+    r = mcrypto.rc4().rand
     for _ in range(1000):
         # check that all outputs are in the range 0.0-1.0
         assert abs(r() - 0.5) <= 0.5
