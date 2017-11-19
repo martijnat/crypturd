@@ -23,12 +23,12 @@ import mcrypto.aes
 import mcrypto.rc4
 import mcrypto.pkcs7
 
-# Default encryption is AES-256-CTR+SHA256-HMAC
-encrypt = mcrypto.aes.encrypt_256_ctr
-decrypt = mcrypto.aes.decrypt_256_ctr
+# Default encryption is chacha20 (with poly1305 mac)
+encrypt = mcrypto.chacha20.chacha20_encrypt
+decrypt = mcrypto.chacha20.chacha20_decrypt
 
 # Default hash is SHA56
 hash = mcrypto.sha.sha256
 
 # Default rng is AES-128-CTR
-rand = mcrypto.aes.rand
+rand = mcrypto.chacha20.rand

@@ -25,8 +25,13 @@ lookups.
 
 # Block ciphers
 
-- AES (128/256 bit) (ECB/CBC/CTR) (SHA256-HMAC)
-- ChaCha20
+- AES-128-ECB + SHA256 HMAC
+- AES-128-CBC + SHA256 HMAC
+- AES-128-CTR + SHA256 HMAC
+- AES-256-ECB + SHA256 HMAC
+- AES-256-CBC + SHA256 HMAC
+- AES-256-CTR + SHA256 HMAC
+- ChaCha20 + Poly1305
 
 # Hash algorithms
 
@@ -36,7 +41,8 @@ lookups.
 
 # Random number generators
 
-- AES-128-CTR
+- AES-128-CTR (custom)
+- Chacha20 (custom)
 - RC4
 - MT19937
 
@@ -44,5 +50,3 @@ lookups.
 
 - Null Padding
 - PKCS7
-
-
