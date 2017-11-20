@@ -45,7 +45,6 @@ def poly1305(data, key):
 
     accumulator += s
     tag = int2littleendian(accumulator,16)[:16]
-    # print(len(tag))
     return tag
 
 def poly1305_key_gen(key,nonce):
@@ -75,8 +74,6 @@ def check_poly1305_mac(decf):
 
         tag = data[-16:]
         if tag != poly1305(ciphertext, otk):
-            print(repr(tag))
-            print(repr(poly1305(ciphertext, otk)))
             raise Exception("Invalid MAC (Poly1305)")
         plaintext = decf(ciphertext, key)
         return plaintext
