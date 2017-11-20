@@ -22,6 +22,8 @@ from mcrypto.common import _i32
 from mcrypto.common import shiftr_i32 as shiftr
 from mcrypto.common import xor_str
 from mcrypto.common import null_padding
+from mcrypto.common import int2bigendian
+from mcrypto.common import int2littleendian
 
 
 def SHA_padding(L):
@@ -116,11 +118,14 @@ def sha256(m):
         h7 = h7 + h
 
     # Produce the final hash value (big-endian):
-    digest = ""
-    for h in h0, h1, h2, h3, h4, h5, h6, h7:
-        for bitshift in 24, 16, 8, 0:
-            digest += chr((h >> bitshift) % 256)
-    return digest
+    return (int2bigendian(h0,4)+
+            int2bigendian(h1,4)+
+            int2bigendian(h2,4)+
+            int2bigendian(h3,4)+
+            int2bigendian(h4,4)+
+            int2bigendian(h5,4)+
+            int2bigendian(h6,4)+
+            int2bigendian(h7,4))
 
 
 def sha256_hmac(data, key):
@@ -206,11 +211,11 @@ def sha1(m):
         h3 = _i32(h3 + d)
         h4 = _i32(h4 + e)
 
-    digest = ""
-    for h in h0, h1, h2, h3, h4:
-        for bitshift in 24, 16, 8, 0:
-            digest += chr((h >> bitshift) % 256)
-    return digest
+    return (int2bigendian(h0,4)+
+            int2bigendian(h1,4)+
+            int2bigendian(h2,4)+
+            int2bigendian(h3,4)+
+            int2bigendian(h4,4))
 
 
 def sha1_hmac(data, key):
