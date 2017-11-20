@@ -19,7 +19,7 @@ implement specific primitives correctly. Performance is not a priority.
 
 # Public key crypto
 
-- RSA
+- RSA (256-bit, no integrity checks, insecure)
 
 # Hash algorithms
 

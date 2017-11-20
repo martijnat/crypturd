@@ -17,7 +17,13 @@
 
 import mcrypto
 
-# Warning: this implementation does not check input format. In other
+# __        ___    ____  _   _ ___ _   _  ____
+# \ \      / / \  |  _ \| \ | |_ _| \ | |/ ___|
+#  \ \ /\ / / _ \ | |_) |  \| || ||  \| | |  _
+#   \ V  V / ___ \|  _ <| |\  || || |\  | |_| |
+#    \_/\_/_/   \_\_| \_\_| \_|___|_| \_|\____|
+
+# This implementation does not check input format. In other
 # words: it is vulnerable to ciphertext manipulation.
 
 def gen_public_private_key_pair():
