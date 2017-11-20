@@ -205,6 +205,8 @@ def int2bigendian(n,minlen=0):
         n = n//256
     while len(r)<minlen:
         r = "\0"+r
+    while minlen>0 and len(r)>minlen:
+        r = r[-1:]
     return r
 
 def int2littleendian(n,minlen=0):
@@ -214,6 +216,8 @@ def int2littleendian(n,minlen=0):
         n = n//256
     while len(r)<minlen:
         r = r+"\0"
+    while minlen>0 and len(r)>minlen:
+        r = r[:-1]
     return r
 
 
