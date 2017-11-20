@@ -258,9 +258,8 @@ def fixed_length_key(key,length):
         return "".join([chr(int(key[i:i+2],16))for i in range(0,len(key),2)])
     elif length==32:
         return mcrypto.sha.sha256(key)
-    elif length==16:
-        h = mcrypto.sha.sha256(key)
-        return xor_str(h[:16], h[16:])
+    elif length<32:
+        return mcrypto.sha.sha256(key)[:length]
     else:
         return key[:length]
 

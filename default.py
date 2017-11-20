@@ -16,19 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# This file sets up default values for
+import mcrypto
 
-import mcrypto.common
-import mcrypto.aes
-import mcrypto.rc4
-import mcrypto.pkcs7
-
-# Default encryption is chacha20 (with poly1305 mac)
+# Default encryption is ChaCha20 (with poly1305 mac)
 encrypt = mcrypto.chacha20.chacha20_encrypt
 decrypt = mcrypto.chacha20.chacha20_decrypt
 
 # Default hash is SHA56
 hash = mcrypto.sha.sha256
 
-# Default rng is AES-128-CTR
+# Default rng is based of ChaCha20
 rand = mcrypto.chacha20.rand
