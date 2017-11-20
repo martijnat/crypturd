@@ -25,6 +25,9 @@ import mcrypto
 # down by about factor 100.
 ctlt = True
 
+# If true, show exceptions
+DEBUG = False
+
 minus1_i32 = 2**32 - 1
 
 
@@ -100,13 +103,16 @@ class RngBase():
 def SilenceErrors(f):
     "Replace any exception by a generic one"
     def SilentFuction(*args, **kwargs):
-        RAISE_EXCEPTION = False
-        try:
+        if DEBUG:
             return f(*args, **kwargs)
-        except:
-            RAISE_EXCEPTION = True
-        if RAISE_EXCEPTION:
-            raise Exception("Silenced exception")
+        else:
+            RAISE_EXCEPTION = False
+            try:
+                return f(*args, **kwargs)
+            except:
+                RAISE_EXCEPTION = True
+            if RAISE_EXCEPTION:
+                raise Exception("Silenced exception")
 
     return SilentFuction
 
@@ -206,7 +212,7 @@ def int2bigendian(n,minlen=0):
     while len(r)<minlen:
         r = "\0"+r
     while minlen>0 and len(r)>minlen:
-        r = r[-1:]
+        r = r[1:]
     return r
 
 def int2littleendian(n,minlen=0):

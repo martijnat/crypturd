@@ -25,6 +25,9 @@ import os
 # keys, this is not a problem.
 mcrypto.common.ctlt = False
 
+# Show all exceptions
+mcrypto.common.DEBUG = True
+
 
 def test_generic_hash(alg, message, h):
     if mcrypto.common.hexstr(alg(message)) != h:
