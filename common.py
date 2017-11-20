@@ -232,17 +232,25 @@ def littleendian2int(r):
         r = r[:-1]
     return n
 
+def is_hex(s):
+    for c in s:
+        if not (c in "0123456789abcdefABCDEF"):
+            return False
+    return True
+
 def fixed_length_key(key,length):
     "Given a arbirtrary size KEY, return a LENGTH-byte sized output"
     if len(key)<length:
         return null_padding(key, length)
-    if len(key)==length:
+    elif len(key)==length:
         return key
-    if length==32:
+    elif len(key) == length*2 and is_hex(key):
+        return "".join([chr(int(key[i:i+2],16))for i in range(0,len(key),2)])
+    elif length==32:
         return mcrypto.sha.sha256(key)
-    if length==16:
+    elif length==16:
         h = mcrypto.sha.sha256(key)
         return xor_str(h[:16], h[16:])
-
-    return key[:length]
+    else:
+        return key[:length]
 
