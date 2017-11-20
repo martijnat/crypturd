@@ -28,6 +28,7 @@ mcrypto.common.ctlt = False
 # Show all exceptions
 mcrypto.common.DEBUG = True
 
+# TODO: Test RSA
 
 def test_generic_hash(alg, message, h):
     if mcrypto.common.hexstr(alg(message)) != h:
@@ -137,6 +138,16 @@ def test_pkcs7():
                 mcrypto.pkcs7.add_padding(data, plength)) == data
 
 
+def test_rsa():
+    for _ in range(10):
+        pubkey,privkey = mcrypto.rsa.gen_public_private_key_pair()
+        rsa_plaintext = os.urandom(16)
+        c = pubkey.encrypt(rsa_plaintext)
+        sig = privkey.sign(rsa_plaintext)
+        assert rsa_plaintext == privkey.decrypt(c)
+        assert pubkey.verify(rsa_plaintext,sig)
+
+
 def test_rc4():
     r = mcrypto.rc4().rand
     for _ in range(1000):
@@ -179,4 +190,5 @@ def test_all():
     test_mt19937()
     test_pkcs7()
     test_rc4()
+    test_rsa()
     test_sha()

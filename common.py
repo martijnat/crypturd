@@ -162,31 +162,41 @@ def unshift_left(value, shift, mask):
         result = result | part
     return _i32(result)
 
+
 def is_prime(x):
-    if x<2:
+    if x < 2:
         return False
-    elif x==2:
+    elif x == 2:
         return True
-    d = 3
-    while d*d<=x:
-        if x%d==0:
-            return False
-        d+=2
-    return True
+    elif x < 2**32:
+        d = 3
+        while d * d <= x:
+            if x % d == 0:
+                return False
+            d += 2
+        return True
+    else:
+        # fermat primality test
+        for n in [2, 3, 5, 7, 11, 13, 17, 19]:
+            if modexp(n, x - 1, x) != 1:
+                return False
+        return True
+
 
 def random_mod(x):
-    p=1
-    while 2**p<x:
-        p+=1
-    b = (p+7)//8
+    p = 1
+    while 2**p < x:
+        p += 1
+    b = (p + 7) // 8
     r = 0
     for _ in range(b):
-        r = r*256 + ord(os.urandom(1))
-    r = r%(2**p)
-    if r<x:
+        r = r * 256 + ord(os.urandom(1))
+    r = r % (2**p)
+    if r < x:
         return r
     else:
         return random_mod(x)
+
 
 def random_prime_mod(x):
     r = random_mod(x)
@@ -194,53 +204,57 @@ def random_prime_mod(x):
         r = random_mod(x)
     return r
 
-def modexp(x,p,n):
-    if p<=0:
-        return 1
-    elif p==1:
-        return x%n
-    while p%2==0:
-        x = (x*x)%n
-        p = p//2
-    return (x*modexp(x,p-1,n))%n
 
-def int2bigendian(n,minlen=0):
+def modexp(x, p, n):
+    if p <= 0:
+        return 1
+    elif p == 1:
+        return x % n
+    while p % 2 == 0:
+        x = (x * x) % n
+        p = p // 2
+    return (x * modexp(x, p - 1, n)) % n
+
+
+def int2bigendian(n, minlen=0):
     r = ""
-    while n>0:
-        r = chr(n%256) + r
-        n = n//256
-    while len(r)<minlen:
-        r = "\0"+r
-    while minlen>0 and len(r)>minlen:
+    while n > 0:
+        r = chr(n % 256) + r
+        n = n // 256
+    while len(r) < minlen:
+        r = "\0" + r
+    while minlen > 0 and len(r) > minlen:
         r = r[1:]
     return r
 
-def int2littleendian(n,minlen=0):
+
+def int2littleendian(n, minlen=0):
     r = ""
-    while n>0:
-        r = r + chr(n%256)
-        n = n//256
-    while len(r)<minlen:
-        r = r+"\0"
-    while minlen>0 and len(r)>minlen:
+    while n > 0:
+        r = r + chr(n % 256)
+        n = n // 256
+    while len(r) < minlen:
+        r = r + "\0"
+    while minlen > 0 and len(r) > minlen:
         r = r[:-1]
     return r
-
 
 
 def bigendian2int(r):
-    n =0
-    while len(r)>0:
-        n = n*256 + ord(r[0])
+    n = 0
+    while len(r) > 0:
+        n = n * 256 + ord(r[0])
         r = r[1:]
     return n
 
+
 def littleendian2int(r):
-    n =0
-    while len(r)>0:
-        n = n*256 + ord(r[-1])
+    n = 0
+    while len(r) > 0:
+        n = n * 256 + ord(r[-1])
         r = r[:-1]
     return n
+
 
 def is_hex(s):
     for c in s:
@@ -248,18 +262,33 @@ def is_hex(s):
             return False
     return True
 
-def fixed_length_key(key,length):
+
+def fixed_length_key(key, length):
     "Given a arbirtrary size KEY, return a LENGTH-byte sized output"
-    if len(key)<length:
+    if len(key) < length:
         return null_padding(key, length)
-    elif len(key)==length:
+    elif len(key) == length:
         return key
-    elif len(key) == length*2 and is_hex(key):
-        return "".join([chr(int(key[i:i+2],16))for i in range(0,len(key),2)])
-    elif length==32:
+    elif len(key) == length * 2 and is_hex(key):
+        return "".join([chr(int(key[i:i + 2], 16))for i in range(0, len(key), 2)])
+    elif length == 32:
         return mcrypto.sha.sha256(key)
-    elif length<32:
+    elif length < 32:
         return mcrypto.sha.sha256(key)[:length]
     else:
         return key[:length]
 
+
+def egcd(a, b):
+    if a == 0:
+        return b, 0, 1
+    else:
+        g, y, x = egcd(b % a, a)
+        return g, x - (b // a) * y, y
+
+def modinv(a, m):
+    g, x, y = egcd(a, m)
+    if g != 1:
+        raise Exception('No modular inverse')
+    else:
+        return x % m

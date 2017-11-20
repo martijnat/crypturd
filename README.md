@@ -12,10 +12,14 @@ implement specific primitives correctly. Performance is not a priority.
     key = "Random password."
     ciphertext = encrypt(plaintext,key)
 
-# Block ciphers
+# Symmetric key crypto
 
 - AES (128/256 bit variant in ECB,CBC or CTR mode with SHA256-HMAC)
 - ChaCha20 (Poly1305 MAC)
+
+# Public key crypto
+
+- RSA
 
 # Hash algorithms
 
@@ -90,6 +94,12 @@ are converted to appropriately sized keys
 - Strings of the correct size are use exactly
 - hex formated string of the correct size are used exactly
 - Otherwise, the input string is hashed using sha256 (and truncated for 128-bit keys)
+
+The following keys are all treated as if they were identical
+
+- "yellow submarine"
+- "yellow submarine\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+- "79656c6c6f77207375626d6172696e6500000000000000000000000000000000"
 
 # Nonce generation
 
