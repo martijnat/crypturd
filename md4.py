@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from mcrypto.common import rotl_i32 as rotl
-from mcrypto.common import _i32
+from mcrypto.common import _i32,int2littleendian
 
 
 def md4_padding(L):
@@ -113,11 +113,10 @@ def md4(m):
         D = _i32(D + DD)
 
     # Produce the final hash value (little-endian):
-    digest = ""
-    for h in A, B, C, D:
-        for bitshift in 0, 8, 16, 24:
-            digest += chr((h >> bitshift) % 256)
-    return digest
+    return (int2littleendian(A,4)+
+            int2littleendian(B,4)+
+            int2littleendian(C,4)+
+            int2littleendian(D,4))
 
 
 # helper functions
