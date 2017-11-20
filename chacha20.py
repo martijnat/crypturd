@@ -18,7 +18,7 @@
 import mcrypto
 from mcrypto.common import rotl_i32, rotr_i32, _i32,null_padding
 from mcrypto.common import int2littleendian,littleendian2int
-from mcrypto.common import xor_str,SilenceErrors,modexp,RngBase
+from mcrypto.common import xor_str,SilenceErrors,modexp,RngBase,fixed_length_key
 from mcrypto.sha import sha256
 from os import urandom
 
@@ -57,16 +57,10 @@ def poly1305_key_gen(key,nonce):
 
 def add_poly1305_mac(encf):
     def f(data, key):
-        if len(key)<32:
-            key = null_padding(key,32)
-        if len(key)>32:
-            key = sha256(key)
-
+        key = fixed_length_key(key,32)
         ciphertext = encf(data, key)
-
         nonce = ciphertext[:12]
         otk = poly1305_key_gen(key,nonce)
-
         tag = poly1305(ciphertext, otk)
         return ciphertext + tag
     return f
@@ -74,11 +68,7 @@ def add_poly1305_mac(encf):
 
 def check_poly1305_mac(decf):
     def f(data, key):
-        if len(key)<32:
-            key = null_padding(key,32)
-        if len(key)>32:
-            key = sha256(key)
-
+        key = fixed_length_key(key,32)
         ciphertext = data[:-16]
         nonce = ciphertext[:12]
         otk = poly1305_key_gen(key,nonce)
@@ -130,11 +120,7 @@ def chacha20_block(key, counter, nonce):
 @SilenceErrors
 @add_poly1305_mac
 def chacha20_encrypt(plaintext,key,counter = 1):
-    if len(key)<32:
-        key = null_padding(key,32)
-    if len(key)>32:
-        key = sha256(key)
-
+    key = fixed_length_key(key,32)
     key_words = [littleendian2int(key[i:i+4]) for i in range(0,32,4)]
     nonce_words = [littleendian2int(urandom(4)) for _ in range(3)]
     ciphertext = "".join([int2littleendian(n,4) for n in nonce_words])
@@ -150,11 +136,7 @@ def chacha20_encrypt(plaintext,key,counter = 1):
 @SilenceErrors
 @check_poly1305_mac
 def chacha20_decrypt(data,key,counter = 1):
-    if len(key)<32:
-        key = null_padding(key,32)
-    if len(key)>32:
-        key = sha256(key)
-
+    key = fixed_length_key(key,32)
     key_words = [littleendian2int(key[i:i+4]) for i in range(0,32,4)]
     nonce_words = [littleendian2int(data[i:i+4]) for i in range(0,12,4)]
     ciphertext = data[12:]

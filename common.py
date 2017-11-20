@@ -18,6 +18,7 @@
 import sys
 import time
 import os
+import mcrypto
 
 # Force the use of constant time lookup tables to prevent time based
 # side-channel attacks. When enabled, encryption and decryption slow
@@ -230,3 +231,18 @@ def littleendian2int(r):
         n = n*256 + ord(r[-1])
         r = r[:-1]
     return n
+
+def fixed_length_key(key,length):
+    "Given a arbirtrary size KEY, return a LENGTH-byte sized output"
+    if len(key)<length:
+        return null_padding(key, length)
+    if len(key)==length:
+        return key
+    if length==32:
+        return mcrypto.sha.sha256(key)
+    if length==16:
+        h = mcrypto.sha.sha256(key)
+        return xor_str(h[:16], h[16:])
+
+    return key[:length]
+
