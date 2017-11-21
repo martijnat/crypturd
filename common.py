@@ -206,14 +206,13 @@ def random_prime_mod(x):
 
 
 def modexp(x, p, n):
-    if p <= 0:
-        return 1
-    elif p == 1:
-        return x % n
-    while p % 2 == 0:
+    r = 1
+    while p:
+        if p & 1:
+            r = (r * x) % n
+        p = p >> 1
         x = (x * x) % n
-        p = p // 2
-    return (x * modexp(x, p - 1, n)) % n
+    return r
 
 
 def int2bigendian(n, minlen=0):
@@ -285,6 +284,7 @@ def egcd(a, b):
     else:
         g, y, x = egcd(b % a, a)
         return g, x - (b // a) * y, y
+
 
 def modinv(a, m):
     g, x, y = egcd(a, m)
