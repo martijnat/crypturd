@@ -144,7 +144,7 @@ def test_rsa():
         rsa_plaintext = os.urandom(16)
         c = pubkey.encrypt(rsa_plaintext)
         sig = privkey.sign(rsa_plaintext)
-        assert rsa_plaintext == privkey.decrypt(c)
+        assert mcrypto.common.littleendian2int(rsa_plaintext) == mcrypto.common.littleendian2int(privkey.decrypt(c))
         assert pubkey.verify(rsa_plaintext,sig)
 
 
