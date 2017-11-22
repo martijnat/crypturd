@@ -19,8 +19,8 @@ implement specific primitives correctly. Performance is not a priority.
 
 # Symmetric key crypto
 
-- AES (128/256 bit variant in ECB,CBC or CTR mode with SHA256-HMAC)
-- ChaCha20 (Poly1305 MAC)
+- AES (128/256 bit variant in ECB,CBC or CTR)
+- ChaCha20
 
 # Public key crypto
 
@@ -31,6 +31,11 @@ implement specific primitives correctly. Performance is not a priority.
 - MD4 (Insecure)
 - SHA1 (Insecure)
 - SHA256
+
+# Message authentication codes
+
+- Poly1305
+- Sha256-HMAC
 
 # Random number generators
 
