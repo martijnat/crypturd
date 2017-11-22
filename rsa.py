@@ -26,7 +26,7 @@ import mcrypto
 # This implementation does not check input format. In other
 # words: it is vulnerable to ciphertext manipulation.
 
-def gen_public_private_key_pair(bits = 2048):
+def gen_public_private_key_pair(bits = 3072):
     p = mcrypto.random_prime_mod(2**(bits//2))
     q = mcrypto.random_prime_mod(2**(bits//2))
     n = p * q

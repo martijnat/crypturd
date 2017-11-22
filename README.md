@@ -19,7 +19,7 @@ implement specific primitives correctly. Performance is not a priority.
 
 # Public key crypto
 
-- RSA (2048-bit, slow, vulnerable to chosen ciphertext attacks)
+- RSA (3072-bit, slow, vulnerable to chosen ciphertext attacks)
 
 # Hash algorithms
 
