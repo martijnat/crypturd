@@ -139,8 +139,8 @@ def test_pkcs7():
 
 
 def test_rsa():
+    pubkey,privkey = mcrypto.rsa.gen_public_private_key_pair(1024)
     for _ in range(10):
-        pubkey,privkey = mcrypto.rsa.gen_public_private_key_pair()
         rsa_plaintext = os.urandom(16)
         c = pubkey.encrypt(rsa_plaintext)
         sig = privkey.sign(rsa_plaintext)
