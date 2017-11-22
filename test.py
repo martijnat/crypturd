@@ -19,6 +19,8 @@
 
 import mcrypto
 import os
+import sys
+import time
 
 # Speed up this module at the cost of revealing our secret keys
 # through side channel attacks. Since these are just tests with random
@@ -28,7 +30,22 @@ mcrypto.common.ctlt = False
 # Show all exceptions
 mcrypto.common.DEBUG = True
 
-# TODO: Test RSA
+def t_format_part(unit,n,l):
+    if n>0:
+        fstr = "%%%ii%s "%(l,unit)
+        return fstr%(n)
+    else:
+        return ""
+
+def t_format(t):
+    if t<1.0:
+        return " 0s"
+    seconds = int(t%60)
+    minutes = int((t//60)%60)
+    hours   = int(t//3600)
+    return "%s%s%s"%(t_format_part("h",hours,2),
+                     t_format_part("m",minutes,2),
+                     t_format_part("s",seconds,2))
 
 def test_generic_hash(alg, message, h):
     if mcrypto.common.hexstr(alg(message)) != h:
@@ -183,12 +200,25 @@ def test_sha():
 
 
 def test_all():
-    test_aes()
-    test_chacha20()
-    test_default()
-    test_md4()
-    test_mt19937()
-    test_pkcs7()
-    test_rc4()
-    test_rsa()
-    test_sha()
+    t_0 = time.time()
+    for test in [test_aes,
+              test_chacha20,
+              test_default,
+              test_md4,
+              test_mt19937,
+              test_pkcs7,
+              test_rc4,
+              test_rsa,
+              test_sha,]:
+        try:
+            sys.stdout.write("%20s: "%test.__name__)
+            sys.stdout.flush()
+            t_before = time.time()
+            test()
+            t_after = time.time()
+            sys.stdout.write("[ \033[32;1mOK\033[0m ]") # pretty green text
+            sys.stdout.write(t_format(t_after-t_before))
+        finally:
+            sys.stdout.write("\n")
+    t_end = time.time()
+    sys.stdout.write("Total time: "+(t_format(t_end-t_0))+"\n")

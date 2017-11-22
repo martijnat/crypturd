@@ -26,6 +26,7 @@ __all__ = [
     "rc4",
     "rsa",
     "sha",
+    "test",
 ]
 
 __version__ = '1.0.0'
@@ -43,3 +44,4 @@ from mcrypto.pkcs7 import *
 from mcrypto.rc4 import *
 from mcrypto.rsa import *
 from mcrypto.sha import *
+from mcrypto.test import test_all as selftest
