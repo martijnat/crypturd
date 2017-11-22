@@ -22,14 +22,6 @@ import os
 import sys
 import time
 
-# Speed up this module at the cost of revealing our secret keys
-# through side channel attacks. Since these are just tests with random
-# keys, this is not a problem.
-mcrypto.common.ctlt = False
-
-# Show all exceptions
-mcrypto.common.DEBUG = True
-
 def t_format_part(unit,n,l):
     if n>0:
         fstr = "%%%ii%s "%(l,unit)
@@ -200,6 +192,14 @@ def test_sha():
 
 
 def test_all():
+    # Speed up this module at the cost of revealing our secret keys
+    # through side channel attacks. Since these are just tests with random
+    # keys, this is not a problem.
+    mcrypto.common.ctlt = False
+
+    # Show all exceptions
+    mcrypto.common.DEBUG = True
+
     t_0 = time.time()
     for test in [test_aes,
               test_chacha20,
@@ -222,3 +222,7 @@ def test_all():
             sys.stdout.write("\n")
     t_end = time.time()
     sys.stdout.write("Total time: "+(t_format(t_end-t_0))+"\n")
+
+    # Reset variables
+    mcrypto.common.ctlt = True
+    mcrypto.common.DEBUG = False
