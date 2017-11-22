@@ -5,12 +5,17 @@ implement specific primitives correctly. Performance is not a priority.
 
 # Example usage
 
-    from mcrypto.default import encrypt
-    # default encryption method is chacha20+poly1305
+    #!/usr/bin/env python2
+    import mcrypto
 
-    plaintext = "Attack at dawn"
-    key = "Random password."
-    ciphertext = encrypt(plaintext,key)
+    message = "Attack at dawn!"       # can be any length, even empty
+    key = "yKj3xBCBatVG1Q0gZ8ss2xbC4" # can be any length, >128 bits of entropy is recommended
+
+    # Default encryption is ChaCha20+Poly1305
+    ciphertext = mcrypto.encrypt(message,key)
+
+    print mcrypto.decrypt(ciphertext,key)
+
 
 # Symmetric key crypto
 
