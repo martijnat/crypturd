@@ -30,7 +30,7 @@ def gen_public_private_key_pair(bits = 2048):
     p = mcrypto.random_prime_mod(2**(bits//2))
     q = mcrypto.random_prime_mod(2**(bits//2))
     n = p * q
-    e = 2                       # Use a low e for fast encryption
+    e = 2**16+1
     d = None
     while not d:
         try:
