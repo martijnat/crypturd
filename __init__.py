@@ -23,6 +23,7 @@ __all__ = [
     "md4",
     "mt19937",
     "pkcs7",
+    "poly1305",
     "rc4",
     "rsa",
     "sha",
@@ -41,6 +42,7 @@ from mcrypto.default import *
 from mcrypto.md4 import *
 from mcrypto.mt19937 import *
 from mcrypto.pkcs7 import *
+from mcrypto.poly1305 import *
 from mcrypto.rc4 import *
 from mcrypto.rsa import *
 from mcrypto.sha import *
