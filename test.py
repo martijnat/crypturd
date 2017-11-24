@@ -31,13 +31,22 @@ def t_format_part(unit,n,l):
 
 def t_format(t):
     if t<1.0:
-        return " 0s"
+        return " 0s "
     seconds = int(t%60)
     minutes = int((t//60)%60)
     hours   = int(t//3600)
     return "%s%s%s"%(t_format_part("h",hours,2),
                      t_format_part("m",minutes,2),
                      t_format_part("s",seconds,2))
+
+def format_bytes_per_second(t,b):
+    bps = b/t
+    if bps>(1000**2):
+        return "%6s MB/s"%round(bps/(1000**2),2)
+    elif bps>1000:
+        return "%6s KB/s"%round(bps/(1000),2)
+    else:
+        return "%6s   B/s"%round(bps,2)
 
 def test_generic_hash(alg, message, h):
     if mcrypto.common.hexstr(alg(message)) != h:
@@ -48,36 +57,43 @@ def test_generic_hash(alg, message, h):
         quit(1)
 
 def test_aes():
+    bytes_processed = 0
     # Test primitives with null-data and null-key
     for alg, result in [(
         mcrypto.aes.aes128enc, "66e94bd4ef8a2c3b884cfa59ca342b2e"),
             (mcrypto.aes.aes128dec, "140f0f1011b5223d79587717ffd9ec3a")]:
         assert mcrypto.common.hexstr(alg("\0" * 16, "\0" * 16)) == result
+        bytes_processed += 16
 
     for alg, result in [(
         mcrypto.aes.aes256enc, "a7d13a59e9d87506d2f7f8f4ada2b43e"),
             (mcrypto.aes.aes256dec, "32436508ae6e02d815de45d4910d711b")]:
         assert mcrypto.common.hexstr(alg("\0" * 16, "\0" * 32)) == result
+        bytes_processed += 16
 
     # Test all mode with random data and random keys
-    for key in [os.urandom(i) for i in [0, 5, 16, 32, 33]]:
-        for plaintext in [os.urandom(j) for j in [0, 16, 32, 33, 1000]]:
-            for enc, dec in [(
-                mcrypto.aes.encrypt_128_ecb, mcrypto.aes.decrypt_128_ecb),
-                (mcrypto.aes.encrypt_128_cbc,
-                 mcrypto.aes.decrypt_128_cbc),
-                            (mcrypto.aes.encrypt_128_ctr,
-                             mcrypto.aes.decrypt_128_ctr),
-                            (mcrypto.aes.encrypt_256_ecb,
-                             mcrypto.aes.decrypt_256_ecb),
-                            (mcrypto.aes.encrypt_256_cbc,
-                             mcrypto.aes.decrypt_256_cbc),
-                            (mcrypto.aes.encrypt_256_ctr, mcrypto.aes.decrypt_256_ctr), ]:
-                ciphertext = enc(plaintext, key)
-                assert ciphertext != plaintext
-                assert dec(ciphertext, key) == plaintext
+    for _ in range(10):
+        for key in [os.urandom(i) for i in [0, 5, 16, 32, 33]]:
+            for plaintext in [os.urandom(j) for j in [0, 16, 32, 33, 1000]]:
+                for enc, dec in [(
+                    mcrypto.aes.encrypt_128_ecb, mcrypto.aes.decrypt_128_ecb),
+                    (mcrypto.aes.encrypt_128_cbc,
+                     mcrypto.aes.decrypt_128_cbc),
+                                (mcrypto.aes.encrypt_128_ctr,
+                                 mcrypto.aes.decrypt_128_ctr),
+                                (mcrypto.aes.encrypt_256_ecb,
+                                 mcrypto.aes.decrypt_256_ecb),
+                                (mcrypto.aes.encrypt_256_cbc,
+                                 mcrypto.aes.decrypt_256_cbc),
+                                (mcrypto.aes.encrypt_256_ctr, mcrypto.aes.decrypt_256_ctr), ]:
+                    ciphertext = enc(plaintext, key)
+                    assert ciphertext != plaintext
+                    assert dec(ciphertext, key) == plaintext
+                    bytes_processed += len(plaintext)*2
+    return bytes_processed
 
 def test_chacha20():
+    bytes_processed = 0
     key = [0x03020100,  0x07060504,  0x0b0a0908,  0x0f0e0d0c,
            0x13121110,  0x17161514,  0x1b1a1918,  0x1f1e1d1c,]
     counter = [0x00000001,]
@@ -88,32 +104,41 @@ def test_chacha20():
            +'d2826446079faa0914c2d705d98b02a2'
            +'b5129cd1de164eb9cbd083e8a2503c4e')
     assert mcrypto.hexstr(ciphertext) == ref
-    for key in [os.urandom(i) for i in [0, 5, 16, 32, 33]]:
-        for plaintext in [os.urandom(j) for j in [0, 16, 32, 33, 1000]]:
-            assert mcrypto.chacha20_decrypt(mcrypto.chacha20_encrypt(plaintext,key),key) == plaintext
-
+    bytes_processed+=64
+    for _ in range(500):
+        for key in [os.urandom(i) for i in [0, 5, 16, 32, 33]]:
+            for plaintext in [os.urandom(j) for j in [0, 16, 32, 33, 1000]]:
+                assert mcrypto.chacha20_decrypt(mcrypto.chacha20_encrypt(plaintext,key),key) == plaintext
+                bytes_processed+=len(plaintext)*2
+    return bytes_processed
 
 
 def test_default():
+    bytes_processed = 0
     # check that encryption/decryption works
     random_data = os.urandom(256)
     random_key = os.urandom(51)
     ciphertext = mcrypto.default.encrypt(random_data, random_key)
     plaintext = mcrypto.default.decrypt(ciphertext, random_key)
     assert random_data == plaintext
+    bytes_processed+=len(plaintext) + len(random_data)
 
     for _ in range(1000):
         # check that values are in the range 0.0-1.0
         assert abs(mcrypto.default.rand() - 0.5) <= 0.5
+        bytes_processed+=1
 
     # check that all hashes have the same length
     hlens = [len(mcrypto.default.hash(os.urandom(ord(os.urandom(1)))))
              for _ in range(1000)]
     assert min(hlens) > 0
     assert min(hlens) == max(hlens)
+    bytes_processed += len(hlens)*hlens[0]
+    return bytes_processed
 
 
 def test_md4():
+    bytes_processed = 0
     for m, h in [("", "31d6cfe0d16ae931b73c59d7e0c089c0"),
                  ("a", "bde52cb31de33e46245e05fbdbd6fb24"),
                  ("abc", "a448017aaf21d8525fc10ae87aa6729d"),
@@ -124,30 +149,45 @@ def test_md4():
                   "043f8582f241db351ce627e153e7f0e4"),
                  ("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "e33b4ddc9c38f2199c3e7b164fcc0536"), ]:
         test_generic_hash(mcrypto.md4, m, h)
+        bytes_processed += len(m)
+
+    return bytes_processed
 
 
 def test_mt19937():
+    bytes_processed = 0
     orig = mcrypto.mt19937(ord(os.urandom(1)))
     for _ in range(1248):
         # check that all outputs are in the range 0.0-1.0
         assert abs(orig.rand() - 0.5) <= 0.5
+        bytes_processed+=1
 
     # check that we can clone an instance
     outputs = [orig.rand_int32() for _ in range(624)]
+    bytes_processed+=624
     clone = mcrypto.mt19937_Clone(outputs)
     for i in range(1248):
         assert orig.rand() == clone.rand()
+        bytes_processed+=1
+
+    return bytes_processed
 
 
 def test_pkcs7():
+    bytes_processed = 0
     for dlength in range(2, 100):
         for plength in range(2, 100):
             data = os.urandom(dlength)
-            assert mcrypto.pkcs7.remove_padding(
-                mcrypto.pkcs7.add_padding(data, plength)) == data
+            with_padding = mcrypto.pkcs7.add_padding(data, plength)
+            assert mcrypto.pkcs7.remove_padding(with_padding) == data
+            bytes_processed +=  len(data)
+            bytes_processed +=  len(with_padding)
+
+    return bytes_processed
 
 
 def test_rsa():
+    bytes_processed = 0
     pubkey,privkey = mcrypto.rsa.gen_public_private_key_pair(1024)
     for _ in range(10):
         rsa_plaintext = os.urandom(16)
@@ -155,16 +195,24 @@ def test_rsa():
         sig = privkey.sign(rsa_plaintext)
         assert mcrypto.common.littleendian2int(rsa_plaintext) == mcrypto.common.littleendian2int(privkey.decrypt(c))
         assert pubkey.verify(rsa_plaintext,sig)
+        bytes_processed += len(c)
+        bytes_processed += len(sig)
+
+    return bytes_processed
 
 
 def test_rc4():
+    bytes_processed = 0
     r = mcrypto.rc4().rand
     for _ in range(1000):
         # check that all outputs are in the range 0.0-1.0
         assert abs(r() - 0.5) <= 0.5
+        bytes_processed +=1
+    return bytes_processed
 
 
 def test_sha():
+    bytes_processed = 0
     for m, h in [('', 'da39a3ee5e6b4b0d3255bfef95601890afd80709'),
                  ('a', '86f7e437faa5a7fce15d1ddcb9eaeaea377667b8'),
                  ('abc', 'a9993e364706816aba3e25717850c26c9cd0d89d'),
@@ -176,6 +224,7 @@ def test_sha():
                   '761c457bf73b14d27e9e9265c46f4b4dda11f940'),
                  ('12345678901234567890123456789012345678901234567890123456789012345678901234567890', '50abf5706a150990a08b2c5ea40fa0e585554732'), ]:
         test_generic_hash(mcrypto.sha.sha1, m, h)
+        bytes_processed += len(m)
 
     for m, h in [(
         'a', 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb'),
@@ -189,6 +238,8 @@ def test_sha():
                   'db4bfcbd4da0cd85a60c3c37d3fbd8805c77f15fc6b1fdfe614ee0a7c8fdb4c0'),
                  ('12345678901234567890123456789012345678901234567890123456789012345678901234567890', 'f371bc4a311f2b009eef952dd83ca80e2b60026c8e935592d0f9c308453c813e'), ]:
         test_generic_hash(mcrypto.sha.sha256, m, h)
+        bytes_processed += len(m)
+    return bytes_processed
 
 
 def test_all():
@@ -218,6 +269,7 @@ def test_all():
             t_after = time.time()
             sys.stdout.write("[ \033[32;1mOK\033[0m ]") # pretty green text
             sys.stdout.write(t_format(t_after-t_before))
+            sys.stdout.write(format_bytes_per_second((t_after-t_before),bytes_processed))
         finally:
             sys.stdout.write("\n")
     t_end = time.time()
