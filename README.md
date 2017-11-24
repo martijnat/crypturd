@@ -78,10 +78,8 @@ in the range 2^31 - 2^32 as bignums, allowing for side-channel attacks.
 
 # Technical notes
 
-This implementation **only** works correctly with python2. Python3
-will fail because of differences in string encoding. PyPy will
-technically work but introduce side-channel attacks for all AES
-variants during table lookups.
+Due to differences in string formatting in python2 and python3, this
+library only work with python2.
 
 Error messages are hidden by default to prevent leakage of data. To
 get accurate exception handling add the following line to your code.
