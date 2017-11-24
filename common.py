@@ -20,11 +20,6 @@ import time
 import os
 import mcrypto
 
-# Force the use of constant time lookup tables to prevent time based
-# side-channel attacks. When enabled, encryption and decryption slow
-# down by about factor 100.
-ctlt = True
-
 # If true, show exceptions
 DEBUG = False
 
@@ -120,28 +115,6 @@ def SilenceErrors(f):
 def hexstr(s):
     "represpent a string as hex"
     return "".join("%02x" % ord(c) for c in s)
-
-
-class CTLT():
-
-    """Constant time lookup tables. Expects table of 256 entries of 0-255.
-    Significantly slower than normal lookup but limits data leakage
-    through cache timing.
-
-    """
-
-    def __init__(self, table):
-        self.table = table
-
-    def __getitem__(self, ind):
-        if ctlt:
-            result = 0x00
-            for i in range(256):
-                result ^= self.table[ind] & [0, 255][ind == i]
-            return result
-        else:
-            return self.table[ind]
-
 
 def unshift_right(value, shift):
     result = 0

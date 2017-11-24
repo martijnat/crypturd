@@ -19,7 +19,7 @@ implement specific primitives correctly. Performance is not a priority.
 
 # Symmetric key crypto
 
-- AES (128/256 bit variant in ECB,CBC or CTR)
+- AES (128/256 bit variant in ECB,CBC or CTR) (Vulnerable to timing attacks)
 - ChaCha20
 
 # Public key crypto
@@ -49,7 +49,6 @@ implement specific primitives correctly. Performance is not a priority.
 - Null Padding
 - PKCS7
 
-
 # Security
 
 This is a single man project, nobody except the author has reviewed
@@ -68,15 +67,9 @@ in doubt, use the defaults (as specified in default.py).
 
 # Side channel attacks
 
-AES uses lookup tables which can leak the internal state of the cipher
-if implemented incorrectly. I have wrapped these lookup tables to
-prevent timing attacks at the cost of a large slowdown (about 100x as
-slow as otherwise). You can improve performance of the AES module at
-the cost of allowing side-channel attacks with the following line
-
-
-    mcrypto.common.ctlt = False
-
+The current AES implementation can leak its internal state due to
+timing differences in lookup tables between recently and non-recently
+accessed values.
 
 ChaCha20 is immune to side-channel attack when implemented correctly.
 On 64-bit machines the ChaCha20 in this library is not vulnerable to
