@@ -214,7 +214,7 @@ def test_all():
             sys.stdout.write("%20s: "%test.__name__)
             sys.stdout.flush()
             t_before = time.time()
-            test()
+            bytes_processed = test()
             t_after = time.time()
             sys.stdout.write("[ \033[32;1mOK\033[0m ]") # pretty green text
             sys.stdout.write(t_format(t_after-t_before))

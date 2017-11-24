@@ -21,7 +21,6 @@
 # CBC and CTR mode automatically append a SHA256-HMAC
 
 import os
-import sys
 from mcrypto import pkcs7
 from mcrypto.sha import add_sha256_hmac, check_sha256_hmac, sha256
 from mcrypto.common import SilenceErrors, null_padding, xor_str, RngBase, fixed_length_key
@@ -270,7 +269,6 @@ gfp14 = [0x00, 0x0e, 0x1c, 0x12, 0x38, 0x36, 0x24, 0x2a, 0x70, 0x7e,
 
 
 def expand_key(key, n, b):
-    sys.stderr.write("\033[31;1mWARNING!: Current implementation of AES is vulnerable to timing attacks\n\033[0m")
     def rotate(b4):
         return b4[1:] + b4[:1]
 

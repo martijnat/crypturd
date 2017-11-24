@@ -15,11 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-if sys.maxsize <= 2**32:
-    sys.stderr.write(
-        "\033[31;1mWARNING!: ChaCha20 is vulnerable to timing attacks on 32-bit python\n\033[0m")
-
 import mcrypto
 from mcrypto.common import rotl_i32, rotr_i32, _i32, null_padding
 from mcrypto.common import int2littleendian, littleendian2int
