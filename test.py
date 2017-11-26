@@ -137,6 +137,18 @@ def test_default():
     return bytes_processed
 
 
+def test_dsa():
+    bytes_processed = 0
+    privkey = mcrypto.dsa.DSAKey()
+    pubkey = privkey.public()
+    for _ in range(100):
+        plaintext = os.urandom(16)
+        sig = privkey.sign(plaintext)
+        assert pubkey.verify(plaintext,sig)
+        bytes_processed += 16
+    return bytes_processed
+
+
 def test_md4():
     bytes_processed = 0
     for m, h in [("", "31d6cfe0d16ae931b73c59d7e0c089c0"),
@@ -189,7 +201,7 @@ def test_pkcs7():
 def test_rsa():
     bytes_processed = 0
     pubkey,privkey = mcrypto.rsa.gen_public_private_key_pair(1024)
-    for _ in range(10):
+    for _ in range(100):
         rsa_plaintext = os.urandom(16)
         c = pubkey.encrypt(rsa_plaintext)
         sig = privkey.sign(rsa_plaintext)
@@ -253,14 +265,15 @@ def test_all():
 
     t_0 = time.time()
     for test in [test_aes,
-              test_chacha20,
-              test_default,
-              test_md4,
-              test_mt19937,
-              test_pkcs7,
-              test_rc4,
-              test_rsa,
-              test_sha,]:
+                 test_chacha20,
+                 test_default,
+                 test_dsa,
+                 test_md4,
+                 test_mt19937,
+                 test_pkcs7,
+                 test_rc4,
+                 test_rsa,
+                 test_sha,]:
         try:
             sys.stdout.write("%20s: "%test.__name__)
             sys.stdout.flush()

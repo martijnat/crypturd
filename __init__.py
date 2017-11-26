@@ -20,6 +20,7 @@ __all__ = [
     "chacha20",
     "common",
     "default",
+    "dsa",
     "md4",
     "mt19937",
     "pkcs7",
@@ -39,6 +40,7 @@ from mcrypto.aes import *
 from mcrypto.chacha20 import *
 from mcrypto.common import *
 from mcrypto.default import *
+from mcrypto.dsa import *
 from mcrypto.md4 import *
 from mcrypto.mt19937 import *
 from mcrypto.pkcs7 import *

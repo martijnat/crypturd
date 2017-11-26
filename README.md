@@ -25,6 +25,7 @@ implement specific primitives correctly. Performance is not a priority.
 # Public key crypto
 
 - RSA (3072-bit, slow, vulnerable to chosen ciphertext attacks)
+- DSA (Does not yet produce strings-based signatures)
 
 # Hash algorithms
 
