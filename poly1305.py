@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import mcrypto
-from mcrypto.common import fixed_length_key,littleendian2int,int2littleendian
+import crypturd
+from crypturd.common import fixed_length_key,littleendian2int,int2littleendian
 
 def clamp(r):
     "Helper function for poly1305"
@@ -48,7 +48,7 @@ def poly1305_key_gen(key, nonce):
     counter = 0
     key_words = [littleendian2int(key[i:i + 4]) for i in range(0, 32, 4)]
     nonce_words = [littleendian2int(nonce[i:i + 4]) for i in range(0, 12, 4)]
-    block = mcrypto.chacha20_block(key_words, [counter], nonce_words)
+    block = crypturd.chacha20_block(key_words, [counter], nonce_words)
     return block[:32]
 
 

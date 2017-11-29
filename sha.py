@@ -16,14 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from mcrypto.common import rotr_i32 as rotr
-from mcrypto.common import rotl_i32 as rotl
-from mcrypto.common import _i32
-from mcrypto.common import shiftr_i32 as shiftr
-from mcrypto.common import xor_str
-from mcrypto.common import null_padding
-from mcrypto.common import int2bigendian
-from mcrypto.common import int2littleendian
+from crypturd.common import rotr_i32 as rotr
+from crypturd.common import rotl_i32 as rotl
+from crypturd.common import _i32
+from crypturd.common import shiftr_i32 as shiftr
+from crypturd.common import xor_str
+from crypturd.common import null_padding
+from crypturd.common import int2bigendian
+from crypturd.common import int2littleendian
 
 
 def SHA_padding(L):

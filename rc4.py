@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from mcrypto.common import RngBase
+from crypturd.common import RngBase
 
 #  ____   ____ _  _     _                   _                                  _
 # |  _ \ / ___| || |   (_)___   _ __   ___ | |_   ___  ___  ___ _   _ _ __ ___| |

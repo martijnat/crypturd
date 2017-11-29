@@ -21,9 +21,9 @@
 # CBC and CTR mode automatically append a SHA256-HMAC
 
 import os
-from mcrypto import pkcs7
-from mcrypto.sha import add_sha256_hmac, check_sha256_hmac, sha256
-from mcrypto.common import SilenceErrors, null_padding, xor_str, RngBase, fixed_length_key
+from crypturd import pkcs7
+from crypturd.sha import add_sha256_hmac, check_sha256_hmac, sha256
+from crypturd.common import SilenceErrors, null_padding, xor_str, RngBase, fixed_length_key
 
 S = [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67,
      0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59,

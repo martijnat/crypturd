@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from mcrypto.common import rotl_i32 as rotl
-from mcrypto.common import _i32,int2littleendian
+from crypturd.common import rotl_i32 as rotl
+from crypturd.common import _i32,int2littleendian
 
 
 def md4_padding(L):

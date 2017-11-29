@@ -1,4 +1,4 @@
-# mcrypto
+# crypturd
 
 Implementation of several cryptographic primitives. The goal is to
 implement specific primitives correctly. Performance is not a priority.
@@ -6,15 +6,15 @@ implement specific primitives correctly. Performance is not a priority.
 # Example usage
 
     #!/usr/bin/env python2
-    import mcrypto
+    import crypturd
 
     message = "Attack at dawn!"       # can be any length, even empty
     key = "yKj3xBCBatVG1Q0gZ8ss2xbC4" # can be any length, >128 bits of entropy is recommended
 
     # Default encryption is ChaCha20+Poly1305
-    ciphertext = mcrypto.encrypt(message,key)
+    ciphertext = crypturd.encrypt(message,key)
 
-    print mcrypto.decrypt(ciphertext,key)
+    print crypturd.decrypt(ciphertext,key)
 
 
 # Symmetric key crypto
@@ -85,7 +85,7 @@ library only work with python2.
 Error messages are hidden by default to prevent leakage of data. To
 get accurate exception handling add the following line to your code.
 
-    mcrypto.common.DEBUG = True
+    crypturd.common.DEBUG = True
 
 # Key derivation
 

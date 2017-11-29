@@ -16,14 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import mcrypto
+import crypturd
 
 # Default encryption is ChaCha20 (with poly1305 mac)
-encrypt = mcrypto.chacha20.chacha20_encrypt
-decrypt = mcrypto.chacha20.chacha20_decrypt
+encrypt = crypturd.chacha20.chacha20_encrypt
+decrypt = crypturd.chacha20.chacha20_decrypt
 
 # Default hash is SHA56
-hash = mcrypto.sha.sha256
+hash = crypturd.sha.sha256
 
 # Default rng is based of ChaCha20
-rand = mcrypto.chacha20.rand
+rand = crypturd.chacha20.rand

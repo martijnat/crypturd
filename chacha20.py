@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import mcrypto
-from mcrypto.common import rotl_i32, rotr_i32, _i32, null_padding
-from mcrypto.common import int2littleendian, littleendian2int
-from mcrypto.common import xor_str, SilenceErrors, modexp, RngBase, fixed_length_key
-from mcrypto.poly1305 import add_poly1305_mac, check_poly1305_mac
-from mcrypto.sha import sha256
+import crypturd
+from crypturd.common import rotl_i32, rotr_i32, _i32, null_padding
+from crypturd.common import int2littleendian, littleendian2int
+from crypturd.common import xor_str, SilenceErrors, modexp, RngBase, fixed_length_key
+from crypturd.poly1305 import add_poly1305_mac, check_poly1305_mac
+from crypturd.sha import sha256
 from os import urandom
 
 # first 4 intial values of chacha block

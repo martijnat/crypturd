@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from mcrypto.common import RngBase, unshift_right, unshift_left, _i8, _i32
+from crypturd.common import RngBase, unshift_right, unshift_left, _i8, _i32
 
 # __        __               _             _
 # \ \      / /_ _ _ __ _ __ (_)_ __   __ _| |
