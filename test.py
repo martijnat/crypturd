@@ -142,10 +142,10 @@ def test_dsa():
     privkey = crypturd.dsa.DSAKey()
     pubkey = privkey.public()
     for _ in range(100):
-        plaintext = os.urandom(16)
+        plaintext = os.urandom(8)
         sig = privkey.sign(plaintext)
         assert pubkey.verify(plaintext,sig)
-        bytes_processed += 16
+        bytes_processed += 8
     return bytes_processed
 
 

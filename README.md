@@ -1,7 +1,11 @@
 # crypturd
 
-Implementation of several cryptographic primitives. The goal is to
-implement specific primitives correctly. Performance is not a priority.
+Implementation of several cryptographic primitives. I created this
+library to to test specific attacks on existing cryptograpy.
+
+Performance is not a priority and I make no effort from prevented
+anyone from using the wrong schemes. My only goals here are to make
+correct implementations which are easy to use.
 
 # Example usage
 
