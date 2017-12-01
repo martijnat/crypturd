@@ -21,6 +21,7 @@ __all__ = [
     "common",
     "default",
     "dsa",
+    "hashsig",
     "md4",
     "mt19937",
     "pkcs7",
@@ -41,6 +42,7 @@ from crypturd.chacha20 import *
 from crypturd.common import *
 from crypturd.default import *
 from crypturd.dsa import *
+from crypturd.hashsig import *
 from crypturd.md4 import *
 from crypturd.mt19937 import *
 from crypturd.pkcs7 import *

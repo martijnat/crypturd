@@ -136,7 +136,6 @@ def test_default():
     bytes_processed += len(hlens)*hlens[0]
     return bytes_processed
 
-
 def test_dsa():
     bytes_processed = 0
     privkey = crypturd.dsa.DSAKey()
@@ -148,6 +147,17 @@ def test_dsa():
         bytes_processed += 8
     return bytes_processed
 
+def test_hashsig():
+    bytes_processed = 0
+    pk,sk = crypturd.hashsig.public_private_key_pair()
+    for _ in range(10):
+        data = os.urandom(32)
+        new_pk,new_sk = crypturd.hashsig.public_private_key_pair()
+        sig = crypturd.hashsig.sign(data,new_pk,sk)
+        assert crypturd.hashsig.verify(data,new_pk,sig,pk)
+        assert not crypturd.hashsig.verify(os.urandom(32),new_pk,sig,pk)
+        bytes_processed+=128
+    return bytes_processed
 
 def test_md4():
     bytes_processed = 0
@@ -268,6 +278,7 @@ def test_all():
                  test_chacha20,
                  test_default,
                  test_dsa,
+                 test_hashsig,
                  test_md4,
                  test_mt19937,
                  test_pkcs7,
