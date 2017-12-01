@@ -35,7 +35,8 @@ import os
 # key.
 
 
-def public_private_key_pair():
+def new_keys():
+    "Generate a public/private keypair for hash-based signatures"
     sk = ""
     digest = ""
     for n in range(512):
@@ -49,6 +50,7 @@ def public_private_key_pair():
 
 
 def sign(msg1, msg2, sk):
+    "Sign 2 256-bit values using hash-bash signatures"
     msg1 = crypturd.fixed_length_key(msg1, 32)
     msg2 = crypturd.fixed_length_key(msg2, 32)
     sig = ""
@@ -76,6 +78,7 @@ def sign(msg1, msg2, sk):
     return sig
 
 def verify(msg1, msg2, sig, pk):
+    "verify 2 256-bit values using hash-bash signatures"
     msg1 = crypturd.fixed_length_key(msg1, 32)
     msg2 = crypturd.fixed_length_key(msg2, 32)
     digest = ""
@@ -101,3 +104,9 @@ def verify(msg1, msg2, sig, pk):
         digest += zero + one
 
     return crypturd.sha256(digest) == pk
+
+def full_step(msg,sk):
+    "create a new key and sign a message+new key in one step"
+    new_pk,new_sk = new_keys()
+    sig = sign(msg,new_pk,sk)
+    return new_pk,new_sk,sig
