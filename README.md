@@ -25,6 +25,7 @@ correct implementations which are easy to use.
 
 - AES (128/256 bit variant in ECB,CBC or CTR) (Vulnerable to timing attacks)
 - ChaCha20
+- RC4 (Weak cipher)
 
 # Public key crypto
 

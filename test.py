@@ -224,11 +224,18 @@ def test_rsa():
 
 def test_rc4():
     bytes_processed = 0
-    r = crypturd.rc4().rand
+    r = crypturd.rc4_rand().rand
     for _ in range(1000):
         # check that all outputs are in the range 0.0-1.0
         assert abs(r() - 0.5) <= 0.5
         bytes_processed +=1
+    for _ in range(10):
+        for key in [os.urandom(i) for i in [2, 5, 16, 32, 33]]:
+            for plaintext in [os.urandom(j) for j in [2, 16, 32, 33, 1000]]:
+                ciphertext = crypturd.rc4_encrypt(plaintext, key)
+                assert ciphertext != plaintext
+                assert crypturd.rc4_decrypt(ciphertext, key) == plaintext
+                bytes_processed += len(plaintext)*2
     return bytes_processed
 
 

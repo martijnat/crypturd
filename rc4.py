@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from crypturd.common import RngBase
+import crypturd
 
 #  ____   ____ _  _     _                   _                                  _
 # |  _ \ / ___| || |   (_)___   _ __   ___ | |_   ___  ___  ___ _   _ _ __ ___| |
@@ -24,16 +24,16 @@ from crypturd.common import RngBase
 # |_| \_\\____|  |_|   |_|___/ |_| |_|\___/ \__| |___/\___|\___|\__,_|_|  \___(_)
 
 
-class rc4(RngBase):
+class rc4_rand(crypturd.common.RngBase):
 
     "A very simple but insecure random number generator"
 
     def __init__(self, key=""):
         self.S = list(range(256))
+        key = map(ord,key)
         if len(key) > 0:
             j = 0
             for i in range(256):
-                key = map(ord, key)
                 j = (j + self.S[i] + key[i % len(key)]) % 256
                 self.S[i], self.S[j] = self.S[j], self.S[i]
         self.i = 0
@@ -45,3 +45,12 @@ class rc4(RngBase):
         self.j = (self.j + self.S[self.i]) % 256
         self.S[self.i], self.S[self.j] = self.S[self.j], self.S[self.i]
         return self.S[(self.S[self.i] + self.S[self.j]) % 256]
+
+def rc4_encrypt(data,key):
+    keystream = ""
+    r = rc4_rand(key)
+    while len(keystream)<len(data):
+        keystream+=chr(r.rand_int8())
+    return crypturd.common.xor_str(data,keystream)
+
+rc4_decrypt = rc4_encrypt
