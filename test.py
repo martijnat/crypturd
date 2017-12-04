@@ -225,6 +225,13 @@ def test_rsa():
 def test_rc4():
     bytes_processed = 0
     r = crypturd.rc4_rand().rand
+    for k,p,c in [('Key','Plaintext','bbf316e8d940af0ad3',),
+                  ('Wiki','pedia','1021bf0420',),
+                  ('Secret','Attack at dawn','45a01f645fc35b383552544b9bf5',),]:
+        s = crypturd.hexstr(crypturd.rc4_encrypt(p,k))
+        assert s == c
+        bytes_processed+=len(s)//2
+
     for _ in range(1000):
         # check that all outputs are in the range 0.0-1.0
         assert abs(r() - 0.5) <= 0.5
