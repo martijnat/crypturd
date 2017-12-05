@@ -69,14 +69,13 @@ class PrivateKey():
     def update_counter(self):
         "Count in binary to generate a new path in the tree"
         overflow = True
-        for d in range(self.depth-1,-1,-1):
+        for d in range(self.depth-2,-1,-1):
             if overflow:
                 if self.node_right[d]:
                     self.node_right[d] = False
-                    self.node_left_keys[d] = twotimesig.new_keys()
                 else:
                     self.node_right[d] = True
-                    self.node_right_keys[d] = twotimesig.new_keys()
+                    self.node_left_keys[d] = twotimesig.new_keys()
                     overflow = False
         assert not overflow     # MAXIMUM ALLOWED MESSAGES SIGNED!
 

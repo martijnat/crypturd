@@ -160,7 +160,7 @@ def test_twotimesig():
 
 def test_manytimessig():
     bytes_processed = 0
-    sk = crypturd.manytimessig.PrivateKey(4)
+    sk = crypturd.manytimessig.PrivateKey(5)
     pk = sk.PublicKey()
     for _ in range(15):
         data = os.urandom(32)
@@ -223,7 +223,7 @@ def test_rsa():
     bytes_processed = 0
     pubkey,privkey = crypturd.rsa.gen_public_private_key_pair(1024)
     for _ in range(100):
-        rsa_plaintext = os.urandom(8)
+        rsa_plaintext = os.urandom(4)
         c = pubkey.encrypt(rsa_plaintext)
         sig = privkey.sign(rsa_plaintext)
         assert crypturd.common.littleendian2int(rsa_plaintext) == crypturd.common.littleendian2int(privkey.decrypt(c))
