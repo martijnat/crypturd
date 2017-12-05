@@ -46,7 +46,7 @@ def format_bytes_per_second(t,b):
     elif bps>1000:
         return "%6s KB/s"%round(bps/(1000),2)
     else:
-        return "%6s   B/s"%round(bps,2)
+        return "%6s  B/s"%round(bps,2)
 
 def test_generic_hash(alg, message, h):
     if crypturd.common.hexstr(alg(message)) != h:
@@ -158,6 +158,18 @@ def test_twotimesig():
         bytes_processed+=128
     return bytes_processed
 
+def test_manytimessig():
+    bytes_processed = 0
+    sk = crypturd.manytimessig.PrivateKey(4)
+    pk = sk.PublicKey()
+    for _ in range(15):
+        data = os.urandom(32)
+        sig = sk.sign(data)
+        assert crypturd.manytimessig.verify(data,sig,pk)
+        bytes_processed += 32
+    return bytes_processed
+
+
 def test_md4():
     bytes_processed = 0
     for m, h in [("", "31d6cfe0d16ae931b73c59d7e0c089c0"),
@@ -211,7 +223,7 @@ def test_rsa():
     bytes_processed = 0
     pubkey,privkey = crypturd.rsa.gen_public_private_key_pair(1024)
     for _ in range(100):
-        rsa_plaintext = os.urandom(16)
+        rsa_plaintext = os.urandom(8)
         c = pubkey.encrypt(rsa_plaintext)
         sig = privkey.sign(rsa_plaintext)
         assert crypturd.common.littleendian2int(rsa_plaintext) == crypturd.common.littleendian2int(privkey.decrypt(c))
@@ -292,6 +304,7 @@ def test_all():
                  test_default,
                  test_dsa,
                  test_twotimesig,
+                 test_manytimessig,
                  test_md4,
                  test_mt19937,
                  test_pkcs7,

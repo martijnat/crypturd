@@ -25,6 +25,7 @@ __all__ = [
     "md4",
     "mt19937",
     "twotimesig",
+    "onetimesig",
     "pkcs7",
     "poly1305",
     "rc4",
@@ -46,6 +47,7 @@ from crypturd.dsa import *
 from crypturd.manytimessig import *
 from crypturd.md4 import *
 from crypturd.mt19937 import *
+from crypturd.onetimesig import *
 from crypturd.twotimesig import *
 from crypturd.pkcs7 import *
 from crypturd.poly1305 import *
