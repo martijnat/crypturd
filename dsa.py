@@ -45,10 +45,14 @@ class DSAKey():
                 r = crypturd.modexp(self.g, k, self.p)%self.q
             ki = crypturd.modinv(k, self.q)
             s = (ki * (crypturd.littleendian2int(self.h(m)) + self.x * r)) % self.q
-        return r, s
+
+        R = crypturd.int2bigendian(r)
+        S = crypturd.int2bigendian(s)
+        return chr(len(R))+R+S
 
     def verify(self, m, pair):
-        r, s = pair
+        r = crypturd.bigendian2int(pair[1:ord(pair[0])+1])
+        s = crypturd.bigendian2int(pair[ord(pair[0])+1:])
         if not (0 < r and r < self.q and 0 < s and s < self.q):
             return False
         w = crypturd.modinv(s, self.q)

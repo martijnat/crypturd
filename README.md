@@ -30,8 +30,8 @@ correct implementations which are easy to use.
 # Public key crypto
 
 - RSA (3072-bit, slow, vulnerable to chosen ciphertext attacks)
-- DSA (Does not yet produce strings-based signatures)
-- One-time Hash-based signatures (one-time/512-bit/post-quantum)
+- DSA
+- Hash-based signatures (one-time + many-times)
 
 # Hash algorithms
 
