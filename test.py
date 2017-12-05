@@ -147,14 +147,14 @@ def test_dsa():
         bytes_processed += 8
     return bytes_processed
 
-def test_hsig():
+def test_onetimesig():
     bytes_processed = 0
-    pk,sk = crypturd.hsig.new_keys()
+    pk,sk = crypturd.onetimesig.new_keys()
     for _ in range(10):
         data = os.urandom(32)
-        new_pk,new_sk,sig = crypturd.hsig.full_step(data,sk)
-        assert crypturd.hsig.verify(data,new_pk,sig,pk)
-        assert not crypturd.hsig.verify(os.urandom(32),new_pk,sig,pk)
+        new_pk,new_sk,sig = crypturd.onetimesig.full_step(data,sk)
+        assert crypturd.onetimesig.verify(data,new_pk,sig,pk)
+        assert not crypturd.onetimesig.verify(os.urandom(32),new_pk,sig,pk)
         bytes_processed+=128
     return bytes_processed
 
@@ -291,7 +291,7 @@ def test_all():
                  test_chacha20,
                  test_default,
                  test_dsa,
-                 test_hsig,
+                 test_onetimesig,
                  test_md4,
                  test_mt19937,
                  test_pkcs7,

@@ -34,7 +34,6 @@ import os
 # of the data you want to sign and the public key of your next signing
 # key.
 
-
 def new_keys():
     "Generate a public/private keypair for hash-based signatures"
     sk = ""

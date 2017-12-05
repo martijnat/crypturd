@@ -31,7 +31,7 @@ correct implementations which are easy to use.
 
 - RSA (3072-bit, slow, vulnerable to chosen ciphertext attacks)
 - DSA (Does not yet produce strings-based signatures)
-- Hash-based signatures (stateful/post-quantum)
+- One-time Hash-based signatures (one-time/512-bit/post-quantum)
 
 # Hash algorithms
 
