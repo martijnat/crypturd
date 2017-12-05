@@ -37,24 +37,30 @@ import os
 def new_keys():
     "Generate a public/private keypair for hash-based signatures"
     sk = ""
-    digest = ""
-    for n in range(512):
+    digest1 = ""
+    digest2 = ""
+    # First half
+    for n in range(256):
         for b in False, True:
             secret = os.urandom(32)
             sk += secret
-            digest += sha256(secret)
+            digest1 += sha256(secret)
+    # First Second
+    for n in range(256):
+        for b in False, True:
+            secret = os.urandom(32)
+            sk += secret
+            digest2 += sha256(secret)
 
-    pk = sha256(digest)
+    pk = sha256(sha256(digest1)+sha256(digest2))
     return pk, sk
 
 
-def sign(msg1, msg2, sk):
-    "Sign 2 256-bit values using hash-bash signatures"
+def sign_left(msg1, sk):
+    "Sign 2 256-bit values using hash-bash signatures (first part)"
     msg1 = crypturd.fixed_length_key(msg1, 32)
-    msg2 = crypturd.fixed_length_key(msg2, 32)
-    sig = ""
     M1 = crypturd.bigendian2int(msg1)
-    M2 = crypturd.bigendian2int(msg1)
+    sig = ""
 
     for i in range(256):
         zero = sk[i * 64:i * 64 + 32]
@@ -64,6 +70,14 @@ def sign(msg1, msg2, sk):
         else:
             one = crypturd.sha256(one)
         sig += zero + one
+
+    return sig
+
+def sign_right(msg2, sk):
+    "Sign 2 256-bit values using hash-bash signatures (second part)"
+    msg2 = crypturd.fixed_length_key(msg2, 32)
+    sig = ""
+    M2 = crypturd.bigendian2int(msg2)
 
     for i in range(256):
         zero = sk[i * 64 + 16384:i * 64 + 16416]
@@ -76,13 +90,16 @@ def sign(msg1, msg2, sk):
 
     return sig
 
-def verify(msg1, msg2, sig, pk):
-    "verify 2 256-bit values using hash-bash signatures"
+def sign(msg1, msg2, sk):
+    "Sign 2 256-bit values using hash-bash signatures"
+    return sign_left(msg1,sk) + sign_right(msg2,sk)
+
+
+def digest_left(msg1,sig):
+    "verify 2 256-bit values using hash-bash signatures (first part)"
     msg1 = crypturd.fixed_length_key(msg1, 32)
-    msg2 = crypturd.fixed_length_key(msg2, 32)
-    digest = ""
+    digest1 = ""
     M1 = crypturd.bigendian2int(msg1)
-    M2 = crypturd.bigendian2int(msg1)
 
     for i in range(256):
         zero = sig[i * 64:i * 64 + 32]
@@ -91,7 +108,15 @@ def verify(msg1, msg2, sig, pk):
             one = crypturd.sha256(one)
         else:
             zero = crypturd.sha256(zero)
-        digest += zero + one
+        digest1 += zero + one
+
+    return sha256(digest1)
+
+def digest_right(msg2,sig):
+    "verify 2 256-bit values using hash-bash signatures (second part)"
+    msg1 = crypturd.fixed_length_key(msg2, 32)
+    digest2 = ""
+    M2 = crypturd.bigendian2int(msg2)
 
     for i in range(256):
         zero = sig[i * 64 + 16384:i * 64 + 16416]
@@ -100,9 +125,13 @@ def verify(msg1, msg2, sig, pk):
             one = crypturd.sha256(one)
         else:
             zero = crypturd.sha256(zero)
-        digest += zero + one
+        digest2 += zero + one
 
-    return crypturd.sha256(digest) == pk
+    return sha256(digest2)
+
+def verify(msg1, msg2, sig, pk):
+    "verify 2 256-bit values using hash-bash signatures"
+    return sha256(digest_left(msg1,sig) + digest_right(msg2,sig)) == pk
 
 def full_step(msg,sk):
     "create a new key and sign a message+new key in one step"

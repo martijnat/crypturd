@@ -21,9 +21,10 @@ __all__ = [
     "common",
     "default",
     "dsa",
-    "onetimesig",
+    "manytimessig",
     "md4",
     "mt19937",
+    "twotimesig",
     "pkcs7",
     "poly1305",
     "rc4",
@@ -42,9 +43,10 @@ from crypturd.chacha20 import *
 from crypturd.common import *
 from crypturd.default import *
 from crypturd.dsa import *
-from crypturd.onetimesig import *
+from crypturd.manytimessig import *
 from crypturd.md4 import *
 from crypturd.mt19937 import *
+from crypturd.twotimesig import *
 from crypturd.pkcs7 import *
 from crypturd.poly1305 import *
 from crypturd.rc4 import *
