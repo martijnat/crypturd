@@ -38,6 +38,49 @@ class PrivateKey():
         self.node_right_keys = [twotimesig.new_keys() for d in range(depth)]
         self.node_right      = [False for d in range(depth)]
 
+    def fromstr(self,s):
+        sksize               = 32768
+        pksize               = 32
+        self.depth           = ord(s[0])
+        s                    = s[1:]
+        self.root_key        = s[:pksize],s[pksize:pksize+sksize]
+        s                    = s[pksize+sksize:]
+        self.node_left_keys  = [None for d in range(self.depth)]
+        self.node_right_keys = [None for d in range(self.depth)]
+        self.node_right      = [False for d in range(self.depth)]
+
+        for d in range(self.depth):
+            sk,pk = s[:pksize],s[pksize:pksize+sksize]
+            s = s[pksize+sksize:]
+            self.node_left_keys[d] = sk,pk
+
+        for d in range(self.depth):
+            offset = (pksize+sksize)*d
+            sk,pk = s[:pksize],s[pksize:pksize+sksize]
+            s = s[pksize+sksize:]
+            self.node_right_keys[d] = sk,pk
+
+        for d in range(self.depth):
+            if s[d] == "R":
+                self.node_right[d] = True
+            elif  s[d] == "L":
+                self.node_right[d] = False
+            else:
+                assert False
+
+    def __repr__(self):
+        s = [chr(self.depth)]
+        for pk,sk in [self.root_key]+self.node_left_keys+self.node_right_keys:
+            s.append(pk)
+            s.append(sk)
+        for lr in self.node_right:
+            if lr:
+                s.append("R")
+            else:
+                s.append("L")
+        return "".join(s)
+
+
     def sign(self,msg):
         "Sign the path to a leaf in the tree and sign using that leaf"
         sig = ""
