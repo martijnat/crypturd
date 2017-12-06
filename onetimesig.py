@@ -53,9 +53,9 @@ def sign(msg, sk):
 
 def verify(msg, sig, pk):
     "verify a 256-bit value using hash-bash signatures"
-    msg = crypturd.fixed_length_key(msg1, 32)
+    msg = crypturd.fixed_length_key(msg, 32)
     digest = ""
-    M1 = crypturd.bigendian2int(msg1)
+    M1 = crypturd.bigendian2int(msg)
 
     for i in range(256):
         zero = sig[i * 64:i * 64 + 32]
