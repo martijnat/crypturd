@@ -93,16 +93,16 @@ def sign_right(msg2, sk):
 
 signature_keys = []
 signatures = {}
-ASSERT_NO_KEY_REUSE = False
+ASSERT_NO_KEY_REUSE = True
 
 def sign(msg1, msg2, sk):
     "Sign 2 256-bit values using hash-bash signatures"
     if ASSERT_NO_KEY_REUSE:
         if sk in signature_keys:
-            assert (signatures[sk] == msg1,msg2)
+            assert (signatures[sk] == (msg1,msg2))
         else:
             signature_keys.append(sk)
-            signatures[sk] = msg1,msg2
+            signatures[sk] = (msg1,msg2)
     return sign_left(msg1,sk) + sign_right(msg2,sk)
 
 

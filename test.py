@@ -155,6 +155,7 @@ def test_twotimesig():
         new_pk,new_sk,sig = crypturd.twotimesig.full_step(data,sk)
         assert crypturd.twotimesig.verify(data,new_pk,sig,pk)
         assert not crypturd.twotimesig.verify(os.urandom(32),new_pk,sig,pk)
+        pk,sk = new_pk,new_sk
         bytes_processed+=128
     return bytes_processed
 
