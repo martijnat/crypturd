@@ -299,6 +299,9 @@ def test_all():
     # Show all exceptions
     crypturd.common.DEBUG = True
 
+    # Check for reuse of one-time signatures
+    crypturd.twotimesig.ASSERT_NO_KEY_REUSE = True
+
     t_0 = time.time()
     for test in [test_aes,
                  test_chacha20,

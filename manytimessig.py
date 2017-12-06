@@ -118,8 +118,10 @@ class PrivateKey():
                     self.node_right[d] = False
                 else:
                     self.node_right[d] = True
-                    self.node_left_keys[d] = twotimesig.new_keys()
                     overflow = False
+                    for d2 in range(d+1,self.depth,1):
+                        self.node_left_keys[d2]  = twotimesig.new_keys()
+                        self.node_right_keys[d2] = twotimesig.new_keys()
         assert not overflow     # MAXIMUM ALLOWED MESSAGES SIGNED!
 
 
