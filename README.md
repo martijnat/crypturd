@@ -43,6 +43,7 @@ correct implementations which are easy to use.
 
 - Poly1305
 - Sha256-HMAC
+- CBC-MAC (insecure)
 
 # Random number generators
 

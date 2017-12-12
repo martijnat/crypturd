@@ -677,6 +677,17 @@ class RNG_CTR(RngBase):
         self.buf = self.buf[1:]
         return r
 
+def cbc_mac(data, key):
+    key = fixed_length_key(key, 16)
+    data = pkcs7.add_padding(data, 16)
+    iv = "\0"*16
+    r = ""
+    for i in range(0, len(data), 16):
+        cipherblock = aes128enc(xor_str(data[i:i + 16], iv), key)
+        r += cipherblock
+        iv = cipherblock
+    return iv
+
 # Defaults
 rand = RNG_CTR().rand
 encrypt = encrypt_256_ctr
