@@ -94,6 +94,13 @@ class RngBase():
         "Return a random float in the range 0-1"
         return float(self.rand_int32()) / float(2**32)
 
+    def rand_bytes(self,i=1):
+        "Return a random sequence of bytes"
+        r = ""
+        while len(r)<i:
+            r += chr(self.rand_int8())
+        return r
+
 
 def SilenceErrors(f):
     "Replace any exception by a generic one"
