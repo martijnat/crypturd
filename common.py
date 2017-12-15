@@ -289,3 +289,16 @@ def key_combine(keys):
     while len(keys)>1:
         keys = [xor_str(keys[0],keys[1])]+keys[2:]
     return keys[0]
+
+
+def encode_tuple(r,s):
+    "Encode pair of integers as a string"
+    R = crypturd.int2bigendian(r)
+    S = crypturd.int2bigendian(s)
+    return chr(len(R))+R+S
+
+def decode_tuple(pair):
+    "Decode string into tuple of integers"
+    r = crypturd.bigendian2int(pair[1:ord(pair[0])+1])
+    s = crypturd.bigendian2int(pair[ord(pair[0])+1:])
+    return r,s

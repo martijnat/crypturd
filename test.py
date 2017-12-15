@@ -222,13 +222,13 @@ def test_pkcs7():
 
 def test_rsa():
     bytes_processed = 0
-    pubkey,privkey = crypturd.rsa.gen_public_private_key_pair(1024)
+    pk,sk = crypturd.rsa.gen_public_private_key_pair(1024)
     for _ in range(100):
-        rsa_plaintext = os.urandom(4)
-        c = pubkey.encrypt(rsa_plaintext)
-        sig = privkey.sign(rsa_plaintext)
-        assert crypturd.common.littleendian2int(rsa_plaintext) == crypturd.common.littleendian2int(privkey.decrypt(c))
-        assert pubkey.verify(rsa_plaintext,sig)
+        plaintext = "\x80"+os.urandom(4)+"\x01"
+        c = crypturd.rsa.encrypt_pk(plaintext,pk)
+        sig = crypturd.rsa.sign(plaintext,sk)
+        assert plaintext == crypturd.rsa.decrypt_sk(c,sk)
+        assert crypturd.rsa.verify(plaintext,sig,pk)
         bytes_processed += len(c)
         bytes_processed += len(sig)
 
