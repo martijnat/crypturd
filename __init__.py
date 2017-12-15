@@ -32,6 +32,7 @@ __all__ = [
     "rsa",
     "sha",
     "test",
+    "thinice",
 ]
 
 __version__ = '1.0.0'
@@ -55,3 +56,4 @@ from crypturd.rc4 import *
 from crypturd.rsa import *
 from crypturd.sha import *
 from crypturd.test import test_all as selftest
+import crypturd.thinice
