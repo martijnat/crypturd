@@ -272,3 +272,20 @@ def modinv(a, m):
         raise Exception('No modular inverse')
     else:
         return x % m
+
+def key_split(key,split_count=2):
+    "Split secret into several strings"
+    l = len(key)
+    keys = []
+    error = key
+    for k in range(split_count-1):
+        newkey = os.urandom(l)
+        keys.append(newkey)
+        error = xor_str(error,newkey)
+    return keys+[error]
+
+def key_combine(keys):
+    "Recover secret from several strings"
+    while len(keys)>1:
+        keys = [xor_str(keys[0],keys[1])]+keys[2:]
+    return keys[0]
