@@ -17,7 +17,7 @@
 
 import crypturd
 from crypturd.sha import sha256
-from crypturd import onetimesig,twotimesig
+from crypturd import onetimesig
 import os
 import sys
 
@@ -26,16 +26,16 @@ import sys
 
 # You can sign up to 2^depth messages using this scheme
 
-# The default options allow for 4.294.967.296 messages with a 32-byte
-# public key and ~1M signatures
+# The default options allow for 4.194.304 messages with a 32-byte
+# public key and 195 KiB signatures
 
 class PrivateKey():
 
-    def __init__(self, depth = 32):
+    def __init__(self, depth = 22):
         self.depth           = depth
-        self.root_key        = twotimesig.new_keys()
-        self.node_left_keys  = [twotimesig.new_keys() for d in range(depth)]
-        self.node_right_keys = [twotimesig.new_keys() for d in range(depth)]
+        self.root_key        = onetimesig.new_keys()
+        self.node_left_keys  = [onetimesig.new_keys() for d in range(depth)]
+        self.node_right_keys = [onetimesig.new_keys() for d in range(depth)]
         self.node_right      = [False for d in range(depth)]
 
     def fromstr(self,s):
@@ -88,7 +88,7 @@ class PrivateKey():
         for d in range(0,self.depth,1):
             sig+=self.node_left_keys[d][0]
             sig+=self.node_right_keys[d][0]
-            sig+= twotimesig.sign(self.node_left_keys[d][0],self.node_right_keys[d][0],sk)
+            sig+= onetimesig.sign(self.node_left_keys[d][0]+self.node_right_keys[d][0],sk)
             if self.node_right[d]:
                 sig+="R"
                 sk = self.node_right_keys[d][1]
@@ -96,7 +96,7 @@ class PrivateKey():
                 sig+="L"
                 sk = self.node_left_keys[d][1]
 
-        sig += twotimesig.sign(msg,"",sk)
+        sig += onetimesig.sign(msg,sk)
         self.update_counter()
         return sig
 
@@ -120,8 +120,8 @@ class PrivateKey():
                     self.node_right[d] = True
                     overflow = False
                     for d2 in range(d+1,self.depth,1):
-                        self.node_left_keys[d2]  = twotimesig.new_keys()
-                        self.node_right_keys[d2] = twotimesig.new_keys()
+                        self.node_left_keys[d2]  = onetimesig.new_keys()
+                        self.node_right_keys[d2] = onetimesig.new_keys()
         assert not overflow     # MAXIMUM ALLOWED MESSAGES SIGNED!
 
 
@@ -129,12 +129,13 @@ class PrivateKey():
         return self.root_key[0]
 
 def verify(msg,sig,pk):
-    slen = 32768                # lenght of a 2-time signature.
+    # slen = 32768                # lenght of a 2-time signature.
+    slen = 8448                 # Length of a compressed lamport signature
     while len(sig)>slen:
         key_left = sig[:32]
         key_right = sig[32:64]
         ksig = sig[64:64+slen]
-        if not twotimesig.verify(key_left,key_right,ksig,pk):
+        if not onetimesig.verify(key_left+key_right,ksig,pk):
             return False
         sig = sig[64+slen:]
         rsymb = sig[0]
@@ -146,6 +147,6 @@ def verify(msg,sig,pk):
         else:
             print "Invalid format"
             return False
-    return twotimesig.verify(msg,"",sig,pk)
+    return onetimesig.verify(msg,sig,pk)
 
 
