@@ -302,3 +302,11 @@ def decode_tuple(pair):
     r = crypturd.bigendian2int(pair[1:ord(pair[0])+1])
     s = crypturd.bigendian2int(pair[ord(pair[0])+1:])
     return r,s
+
+def hamming_weight(x):
+    acc = 0
+    while x>2:
+        if x%2==1:
+            acc+=1
+        x = x//2
+    return acc
