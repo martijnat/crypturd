@@ -185,8 +185,7 @@ def random_prime_mod(x):
     return r
 
 
-def modexp(x, p, n):
-    r = 1
+def modexp(x, p, n, r = 1):
     while p:
         if p & 1:
             r = (r * x) % n
@@ -310,3 +309,90 @@ def hamming_weight(x):
             acc+=1
         x = x//2
     return acc
+
+def IdentityMatrix(n):
+    I = Matrix(n,n)
+    for i in range(n):
+        I.values[i][i] = 1
+    return I
+
+class Matrix():
+    def __init__(self,height=1,width=1,values = []):
+        self.width = width
+        self.height = height
+        self.values = [[0 for x in range(width)] for y in range(height)]
+        for n,v in enumerate(values):
+            y = n//width
+            x = n%width
+            self.values[y][x] = v
+    def transposed(self):
+        return Matrix(self.width,
+                      self.height,
+                      [self.values[y][x]
+                       for x in range(self.width)
+                       for y in range(self.height)])
+    def T(self):
+        "shorthand for transposed"
+        return self.transposed()
+
+    def __add__(a,b):
+        assert a.width == b.width
+        assert a.height == b.height
+        return Matrix(a.height,
+                      a.width,
+                      [a.values[y][x]+b.values[y][x]
+                       for y in range(a.height)
+                       for x in range(b.width)])
+
+    def __sub__(a,b):
+        return a + b.scale(-1)
+
+    def scale(self,scalar):
+        return Matrix(self.height,
+                      self.width,
+                      [self.values[y][x]*scalar
+                       for y in range(self.height)
+                       for x in range(self.width)])
+
+    def __mod__(self,n):
+        return Matrix(self.height,
+                      self.width,
+                      [self.values[y][x]%n
+                       for y in range(self.height)
+                       for x in range(self.width)])
+
+    def __mul__(a,b):
+        "matrix multiplication"
+        assert a.width == b.height
+        return Matrix(a.height,
+                      b.width,
+                      [sum(
+                          a.values[y][z] * b.values[z][x]
+                          for z in range(a.width))
+                       for y in range(a.height)
+                       for x in range(b.width)])
+
+    def __pow__(self,n,m=-1):
+        "Assumes a square matrix"
+        if m>=0:
+            return modexp(self,n,m,IdentityMatrix(self.height))
+        elif n==0:
+            return IdentityMatrix(self.height)
+        elif n%2==0:
+            return pow(self*self,n//2,m)
+        else:
+            return self*pow(self,n-1,m)
+
+    def __getitem__(self,ind):
+        return self.values[ind]
+
+    def __repr__(self):
+        """Returns ascii table of alligned values"""
+        intl = max([len(str(self.values[y][x]))
+                    for y in range(self.height)
+                    for x in range(self.width)])
+        return "\n".join(["|"+
+                          " ".join([("%%%ii"%intl)%self.values[y][x]
+                                        for x in range(self.width)])
+                          +"|"
+                          for y in range(self.height)])
