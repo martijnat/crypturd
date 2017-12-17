@@ -446,14 +446,20 @@ def RandomBinaryNonSingularMatrix(n):
     "Returns a n x n binary non-singular matrix. Used in McEliece cryptosystem"
     # WARNING: Produces a sparse low-entropy matrix (otherwise it is exremely slow)
     m     = IdentityMatrix(n)
-    m[0][3] = 1
     for y in range(n):
-        x = random_mod(n)
-        bitflip = random_mod(2)
-        try:
-            m[y][x]^=bitflip
-            m.BinaryInverse()
-        except:
-            m[y][x]^=bitflip
+        for x in range(n):
+            bitflip = random_mod(2)
+            try:
+                m[y][x]^=bitflip
+                m.BinaryInverse()
+            except:
+                m[y][x]^=bitflip
 
+    return m
+
+def RandomPermutationMatrix(n):
+    m= IdentityMatrix(n)
+    for y1 in range(n):
+        y2 = random_mod(y1+1)
+        m[y1],m[y2] = m[y2],m[y1]
     return m

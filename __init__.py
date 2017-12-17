@@ -22,9 +22,9 @@ __all__ = [
     "default",
     "dsa",
     "manytimessig",
+    "mceliece",
     "md4",
     "mt19937",
-    "twotimesig",
     "onetimesig",
     "pkcs7",
     "poly1305",
@@ -33,6 +33,7 @@ __all__ = [
     "sha",
     "test",
     "thinice",
+    "twotimesig",
 ]
 
 __version__ = '1.0.0'
@@ -46,14 +47,15 @@ from crypturd.common import *
 from crypturd.default import *
 from crypturd.dsa import *
 from crypturd.manytimessig import *
+from crypturd.mceliece import *
 from crypturd.md4 import *
 from crypturd.mt19937 import *
 from crypturd.onetimesig import *
-from crypturd.twotimesig import *
 from crypturd.pkcs7 import *
 from crypturd.poly1305 import *
 from crypturd.rc4 import *
 from crypturd.rsa import *
 from crypturd.sha import *
 from crypturd.test import test_all as selftest
+from crypturd.twotimesig import *
 import crypturd.thinice
