@@ -390,31 +390,34 @@ class Matrix():
     def __getitem__(self,ind):
         return self.values[ind]
 
+    def __setitem__(self,ind,value):
+        self.values[ind] = value
+
     def BinaryInverse(self):
         "Get the inverse of a binary square matrix using guassian elimination"
         l = self.height
-        a = self.values
+        a = [[self.values[y][x] for x in range(self.height)] for y in range(self.height)]
         b = IdentityMatrix(l).values
-        # Xor rows with each-other to make each row have a hamming weight of 1
-        for row in range(l):
+        # Xor rows with each-other to make each row1 have a hamming weight of 1
+        for row1 in range(l):
             for row2 in range(l):
-                new_row_a = xor_list(a[row],a[row2])
-                new_row_b = xor_list(b[row],b[row2])
-                # print row,row2,".",sum(new_row_a),sum(a[row])
-                if sum(new_row_a)<sum(a[row]) and sum(new_row_a)>0:
-                    a[row] = new_row_a
-                    b[row] = new_row_b
+                new_row_a = xor_list(a[row1],a[row2])
+                new_row_b = xor_list(b[row1],b[row2])
+                # print row1,row2,".",sum(new_row_a),sum(a[row1])
+                if sum(new_row_a)<sum(a[row1]) and sum(new_row_a)>0:
+                    a[row1] = new_row_a
+                    b[row1] = new_row_b
 
         # Sort rows to reconstruct the idenity matrix
-        for row in range(l):    # for every row check:
-            if a[row][row] != 1: # If the current row is at the wrong place
-                for row2 in range(l): # if so check all other row
-                    if a[row2][row] == 1: # to find the correct row
+        for row1 in range(l):    # for every row1 check:
+            if a[row1][row1] != 1: # If the current row1 is at the wrong place
+                for row2 in range(l): # if so check all other row1
+                    if a[row2][row1] == 1: # to find the correct row1
                         for x in range(l): # and swap them
-                            a[row][x],a[row2][x] = a[row2][x],a[row][x]
-                            b[row][x],b[row2][x] = b[row2][x],b[row][x]
+                            a[row1][x],a[row2][x] = a[row2][x],a[row1][x]
+                            b[row1][x],b[row2][x] = b[row2][x],b[row1][x]
 
-        self_inverse = Matrix(l,l,[a[y][x] for y in range(l) for x in range(l)])%2
+        self_inverse = Matrix(l,l,[b[y][x] for y in range(l) for x in range(l)])%2
 
         if ((self_inverse*self)%2).values != IdentityMatrix(l).values:
             raise Exception('Matrix is not invertable')
@@ -431,3 +434,26 @@ class Matrix():
                                         for x in range(self.width)])
                           +"|"
                           for y in range(self.height)])
+    def CompactBinNotation(self):
+        """Returns very compact notation for binary matrices"""
+        return "/"+" "*self.width+"\\\n"+"\n".join([" "+
+                          "".join([" 1"[self.values[y][x]]
+                                    for x in range(self.width)])
+                          +" "
+                          for y in range(self.height)]) + "\n\\"+" "*self.width+"/\n"
+
+def RandomBinaryNonSingularMatrix(n):
+    "Returns a n x n binary non-singular matrix. Used in McEliece cryptosystem"
+    # WARNING: Produces a sparse low-entropy matrix (otherwise it is exremely slow)
+    m     = IdentityMatrix(n)
+    m[0][3] = 1
+    for y in range(n):
+        x = random_mod(n)
+        bitflip = random_mod(2)
+        try:
+            m[y][x]^=bitflip
+            m.BinaryInverse()
+        except:
+            m[y][x]^=bitflip
+
+    return m
