@@ -161,9 +161,9 @@ def test_twotimesig():
 
 def test_manytimessig():
     bytes_processed = 0
-    sk = crypturd.manytimessig.PrivateKey(5)
+    sk = crypturd.manytimessig.PrivateKey(32*1024)
     pk = sk.PublicKey()
-    for _ in range(15):
+    for _ in range(8):
         data = os.urandom(32)
         sig = sk.sign(data)
         assert crypturd.manytimessig.verify(data,sig,pk)
