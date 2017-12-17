@@ -316,6 +316,10 @@ def IdentityMatrix(n):
         I.values[i][i] = 1
     return I
 
+
+def xor_list(a,b):
+    return list([a^b for a,b in zip(a,b)])
+
 class Matrix():
     def __init__(self,height=1,width=1,values = []):
         self.width = width
@@ -385,6 +389,37 @@ class Matrix():
 
     def __getitem__(self,ind):
         return self.values[ind]
+
+    def BinaryInverse(self):
+        "Get the inverse of a binary square matrix using guassian elimination"
+        l = self.height
+        a = self.values
+        b = IdentityMatrix(l).values
+        # Xor rows with each-other to make each row have a hamming weight of 1
+        for row in range(l):
+            for row2 in range(l):
+                new_row_a = xor_list(a[row],a[row2])
+                new_row_b = xor_list(b[row],b[row2])
+                # print row,row2,".",sum(new_row_a),sum(a[row])
+                if sum(new_row_a)<sum(a[row]) and sum(new_row_a)>0:
+                    a[row] = new_row_a
+                    b[row] = new_row_b
+
+        # Sort rows to reconstruct the idenity matrix
+        for row in range(l):    # for every row check:
+            if a[row][row] != 1: # If the current row is at the wrong place
+                for row2 in range(l): # if so check all other row
+                    if a[row2][row] == 1: # to find the correct row
+                        for x in range(l): # and swap them
+                            a[row][x],a[row2][x] = a[row2][x],a[row][x]
+                            b[row][x],b[row2][x] = b[row2][x],b[row][x]
+
+        self_inverse = Matrix(l,l,[a[y][x] for y in range(l) for x in range(l)])%2
+
+        if ((self_inverse*self)%2).values != IdentityMatrix(l).values:
+            raise Exception('Matrix is not invertable')
+        return self_inverse
+
 
     def __repr__(self):
         """Returns ascii table of alligned values"""
