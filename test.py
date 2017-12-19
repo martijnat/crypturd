@@ -147,6 +147,20 @@ def test_dsa():
         bytes_processed += 8
     return bytes_processed
 
+def test_ecc():
+    bytes_processed = 0
+    # ECDH
+    for _ in range(100):
+        pk1,sk1 = crypturd.ecc.ECDH_public_private_keypair()
+        pk2,sk2 = crypturd.ecc.ECDH_public_private_keypair()
+
+        common_value1 = crypturd.ecc.ECDH_calculate_common_secret(pk2,sk1)
+        common_value2 = crypturd.ecc.ECDH_calculate_common_secret(pk1,sk2)
+        assert common_value1 == common_value2
+        bytes_processed+=64
+
+    return bytes_processed
+
 def test_twotimesig():
     bytes_processed = 0
     pk,sk = crypturd.twotimesig.new_keys()
@@ -307,6 +321,7 @@ def test_all():
                  test_chacha20,
                  test_default,
                  test_dsa,
+                 test_ecc,
                  test_twotimesig,
                  test_manytimessig,
                  test_md4,

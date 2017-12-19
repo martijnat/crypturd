@@ -266,6 +266,7 @@ def egcd(a, b):
 
 
 def modinv(a, m):
+    a = a%m
     g, x, y = egcd(a, m)
     if g != 1:
         raise Exception('No modular inverse')
@@ -463,3 +464,31 @@ def RandomPermutationMatrix(n):
         y2 = random_mod(y1+1)
         m[y1],m[y2] = m[y2],m[y1]
     return m
+
+class Fraction():
+    "Fraction a/b"
+    def __init__(self,a,b=1):
+        self.a = a
+        self.b = b
+    def inverse(self):
+        return Fraction(self.b,self.a)
+    def __add__(x,y):
+        return Fraction(x.a*y.b + y.a*x.b
+                        ,x.b*y.b)
+    def __sub__(x,y):
+        return x+Fraction(-y.a,y.b)
+    def __mul__(x,y):
+        return Fraction(x.a*y.a,x.b*y.b)
+    def __neg__(x):
+        return Fraction(-x.a,x.b)
+    def __div__(x,y):
+        return x*y.inverse()
+    def __mod__(self,n):
+        a = (self.a)%n
+        b = crypturd.modinv(self.b,n)
+        return (a*b)%n
+    def __eq__(self,other):
+        return (self.a*other.b) == (other.a*self.b)
+    def __repr__(self):
+        return "Fraction(%i/%i)"%(self.a,self.b)
+

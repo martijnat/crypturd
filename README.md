@@ -31,6 +31,7 @@ correct implementations which are easy to use.
 
 - RSA (3072-bit, slow, vulnerable to chosen ciphertext attacks)
 - DSA
+- ECDH (Using Ed25519)
 - Hash-based signatures (Custom scheme for many-time usage with only 8.84 KB signatures)
 
 # Hash algorithms
