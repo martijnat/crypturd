@@ -59,4 +59,4 @@ def sign(msg,sk):
     return decrypt_sk(crypturd.sha.sha256(msg),sk)
 
 def verify(msg,sig,pk):
-    return crypturd.sha.sha256(msg) == encrypt_pk(sig,pk)
+    return bigendian2int(crypturd.sha.sha256(msg)) == bigendian2int(encrypt_pk(sig,pk))
