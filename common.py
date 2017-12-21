@@ -148,6 +148,8 @@ def is_prime(x):
         return False
     elif x == 2:
         return True
+    elif x%2 == 0:
+        return False
     elif x < 2**32:
         d = 3
         while d * d <= x:
