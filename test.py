@@ -175,7 +175,7 @@ def test_twotimesig():
 
 def test_manytimessig():
     bytes_processed = 0
-    sk = crypturd.manytimessig.PrivateKey(3*1024)
+    sk = crypturd.manytimessig.PrivateKey(2*1024)
     pk = sk.PublicKey()
     for _ in range(8):
         data = os.urandom(32)
@@ -236,7 +236,7 @@ def test_pkcs7():
 
 def test_rsa():
     bytes_processed = 0
-    pk,sk = crypturd.rsa.gen_public_private_key_pair(512)
+    pk,sk = crypturd.rsa.gen_public_private_key_pair()
     for _ in range(100):
         plaintext = "\x80"+os.urandom(4)+"\x01"
         c = crypturd.rsa.encrypt_pk(plaintext,pk)

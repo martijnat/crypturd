@@ -27,7 +27,7 @@ from crypturd.common import decode_tuple,encode_tuple,bigendian2int,int2bigendia
 # This implementation does not check input format. In other
 # words: it is vulnerable to ciphertext manipulation.
 
-def gen_public_private_key_pair(bits = 3072):
+def gen_public_private_key_pair(bits = 1024):
     p = crypturd.random_prime_mod(2**(bits//2))
     q = crypturd.random_prime_mod(2**(bits//2))
     n = p * q
