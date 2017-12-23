@@ -100,9 +100,14 @@ class chacha20_rand(RngBase):
 
     "A Random number generator based of Chacha20"
 
-    def __init__(self):
-        self.key_words = [littleendian2int(urandom(4)) for i in range(8)]
-        self.nonce_words = [littleendian2int(urandom(4)) for _ in range(3)]
+    def __init__(self,seed=None):
+        if not seed:
+            seed = urandom(56)
+        elif len(seed) < 4*8 + 3*8:
+            raise Exception('Seed value too short')
+
+        self.key_words = [littleendian2int(seed[i*4:i*4+4]) for i in range(8)]
+        self.nonce_words = [littleendian2int(seed[32+i*4:32+i*4+4]) for _ in range(3)]
         self.counter = 1
         self.buf = ""
 
