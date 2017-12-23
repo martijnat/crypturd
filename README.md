@@ -33,6 +33,7 @@ correct implementations which are easy to use.
 - DSA
 - ECDH (Using Ed25519)
 - Hash-based signatures (Custom scheme for many-time usage with only 8.84 KB signatures)
+- Stateless Hash-based signatures (Custom scheme for usage without state keeping with 64KB signatures)
 
 # Hash algorithms
 

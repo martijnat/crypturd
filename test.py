@@ -175,12 +175,23 @@ def test_twotimesig():
 
 def test_manytimessig():
     bytes_processed = 0
-    sk = crypturd.manytimessig.PrivateKey(2*1024)
+    sk = crypturd.manytimessig.PrivateKey(max_sig_size = 4*1024)
     pk = sk.PublicKey()
-    for _ in range(8):
+    for _ in range(10):
         data = os.urandom(32)
         sig = sk.sign(data)
         assert crypturd.manytimessig.verify(data,sig,pk)
+        bytes_processed += 32
+    return bytes_processed
+
+def test_statelesssig():
+    bytes_processed = 0
+    sk = crypturd.statelesssig.PrivateKey(max_sig_size = 4*1024)
+    pk = sk.PublicKey()
+    for _ in range(3):
+        data = os.urandom(32)
+        sig = sk.sign(data)
+        assert crypturd.statelesssig.verify(data,sig,pk)
         bytes_processed += 32
     return bytes_processed
 
@@ -315,6 +326,7 @@ def test_all():
 
     # Check for reuse of one-time signatures
     crypturd.twotimesig.ASSERT_NO_KEY_REUSE = True
+    crypturd.onetimesig.ASSERT_NO_KEY_REUSE = True
 
     t_0 = time.time()
     for test in [test_aes,
@@ -324,6 +336,7 @@ def test_all():
                  test_ecc,
                  test_twotimesig,
                  test_manytimessig,
+                 test_statelesssig,
                  test_md4,
                  test_mt19937,
                  test_pkcs7,
