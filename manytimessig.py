@@ -43,6 +43,7 @@ class PrivateKey():
 
     def sign(self,msg):
         "Sign the path to a leaf in the tree and sign using that leaf"
+        self.update_counter()
         sk = self.root_key[1]
         sig = chr(self.width)
         for d in range(0,self.depth,1):
@@ -57,7 +58,6 @@ class PrivateKey():
             sk = self.node_keys[d][self.node_index[d]][1]
 
         sig += onetimesig.sign(msg,sk)
-        self.update_counter()
         return sig
 
     def signatures_left(self):
@@ -81,11 +81,14 @@ class PrivateKey():
                     for d2 in range(d+1,self.depth,1):
                         self.node_keys[d2]  = [onetimesig.new_keys()
                                                for ind in range(self.width)]
-        if not overflow:
+        if overflow:
             for d2 in range(0,self.depth,1):
                 self.node_keys[d2]  = [onetimesig.new_keys()
                                        for ind in range(self.width)]
-
+        # for d in range(self.depth):
+        #     ind = self.node_index[d]
+        #     k = crypturd.common.hexstr(self.node_keys[d][ind][0])[:64]
+        #     print "d %2i ind %2i key %s..."%(d,ind,k)
 
     def PublicKey(self):
         return self.root_key[0]
