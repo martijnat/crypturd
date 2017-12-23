@@ -37,27 +37,38 @@ def hash_times(msg,n=1,h=sha256):
         msg = h(msg)
     return msg
 
-def new_keys():
+def new_keys(sk = None):
     "Generate a public/private keypair for hash-based signatures"
     # Based of winternitz
-    sk = ""
+    if not sk or len(sk)<32*33:
+        sk = os.urandom(32*33)
     digest = ""
     # 32 secrets for 32 blocks of 8-bits each
     for n in range(32):
-        secret = os.urandom(32)
-        sk += secret
-        digest+= hash_times(secret,256)
+        digest+= hash_times(sk[n*32:n*32+32],256)
     # 1 checksum block
-    checksum_secret = os.urandom(32)
-    sk+=checksum_secret
-    digest += hash_times(checksum_secret,32*256)
+    digest += hash_times(sk[-32:],32*256)
     pk = sha256(digest)
     return pk, sk
 
 
+signature_keys = []
+signatures = {}
+ASSERT_NO_KEY_REUSE = False
+
 def sign(msg, sk):
     "Sign a 256-bit value"
     msg = crypturd.fixed_length_key(msg, 32)
+
+    # Code for testing if a signature is used twice
+    if ASSERT_NO_KEY_REUSE:
+        if sk in signature_keys:
+            if not (signatures[sk] == msg):
+                raise Exception(' reused one-time key <%s...>'%crypturd.common.hexstr(sk)[:64])
+        else:
+            signature_keys.append(sk)
+            signatures[sk] = msg
+
     sig = ""
     checksum = 0
     for i in range(32):
