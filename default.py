@@ -27,3 +27,11 @@ hash = crypturd.sha.sha256
 
 # Default rng is based of ChaCha20
 rand = crypturd.chacha20.rand
+
+# Default signature scheme is my custom hash-based scheme
+sign_keypair = crypturd.manytimessig.key_pair
+verify = crypturd.manytimessig.verify
+
+# Default Key exchange algorithm is ECDH (over Ed25519)
+DH_keypair = crypturd.ecc.ECDH_public_private_keypair
+DH_common_secret =  crypturd.ecc.ECDH_calculate_common_secret
