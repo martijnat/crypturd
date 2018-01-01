@@ -21,43 +21,27 @@ correct implementations which are easy to use.
     print crypturd.decrypt(ciphertext,key)
 
 
-# Symmetric key crypto
+# Default cipher suite
 
-- AES (128/256 bit variant in ECB,CBC or CTR) (Vulnerable to timing attacks)
-- ChaCha20
-- RC4 (Weak cipher)
+| Symmetric key crypto | MAC      | Key exchange   | Signature             | RNG      |
+| ---                  | ---      | ---            | ---                   | ---      |
+| ChaCha20             | Poly1305 | ECDH (Ed25519) | Manytimessig (custom) | ChaCha20 |
 
-# Public key crypto
+# Included ciphers
 
-- RSA (3072-bit, slow, vulnerable to chosen ciphertext attacks)
-- DSA
-- ECDH (Using Ed25519)
-- Hash-based signatures (Custom scheme for many-time usage with only 8.84 KB signatures)
-- Stateless Hash-based signatures (Custom scheme for usage without state keeping with 64KB signatures)
+| Symmetric key crypto  | MAC            | Key exchange   | Signature             |
+| ---                   | ---            | ---            | ---                   |
+| RC4 (Weak)            | CBC-MAC (weak) | RSA            | RSA                   |
+| AES-128 (ECB/CBC/CTR) | SHA256-HMAC    | ECDH (Ed25519) | DSA                   |
+| AES-256 (ECB/CBC/CTR) | Poly1305       |                | Manytimessig (custom) |
+| ChaCha20              |                |                | statelessig (custom)  |
 
-# Hash algorithms
-
-- MD4 (Insecure)
-- SHA1 (Insecure)
-- SHA256
-
-# Message authentication codes
-
-- Poly1305
-- Sha256-HMAC
-- CBC-MAC (insecure)
-
-# Random number generators
-
-- AES-128-CTR (custom)
-- Chacha20 (custom)
-- RC4 (Insecure)
-- MT19937 (Insecure)
-
-# Padding schemes
-
-- Null Padding
-- PKCS7
+| Padding      | Random Number generator | Hash        |
+| ---          | ---                     | ---         |
+| Null Padding | RC4 (weak)              | MD4 (Weak)  |
+| PKCS7        | MT19937 (weak)          | SHA1 (Weak) |
+|              | AES-128-CTR             | SHA256      |
+|              | ChaCha20                |             |
 
 # Security
 

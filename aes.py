@@ -23,7 +23,7 @@
 import os
 from crypturd import pkcs7
 from crypturd.sha import add_sha256_hmac, check_sha256_hmac, sha256
-from crypturd.common import SilenceErrors, null_padding, xor_str, RngBase, fixed_length_key
+from crypturd.common import null_padding, xor_str, RngBase, fixed_length_key
 
 S = [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67,
      0x2B, 0xFE, 0xD7, 0xAB, 0x76, 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59,
@@ -379,10 +379,9 @@ def advance_counter(counter):
     return "".join([chr(c) for c in number_counter])
 
 
-@SilenceErrors
 @add_sha256_hmac
 def encrypt_128_cbc(data, key, padding=True, gen_iv=True):
-    key = fixed_length_key(key,16)
+    key = fixed_length_key(key, 16)
     if padding:
         data = pkcs7.add_padding(data, 16)
         r = ""
@@ -401,10 +400,9 @@ def encrypt_128_cbc(data, key, padding=True, gen_iv=True):
     return r
 
 
-@SilenceErrors
 @check_sha256_hmac
 def decrypt_128_cbc(data, key, padding=True, gen_iv=True):
-    key = fixed_length_key(key,16)
+    key = fixed_length_key(key, 16)
     r = ""
     if gen_iv:
         iv = data[:16]
@@ -423,9 +421,8 @@ def decrypt_128_cbc(data, key, padding=True, gen_iv=True):
         return r
 
 
-@SilenceErrors
 def encrypt_128_ecb(data, key, padding=True):
-    key = fixed_length_key(key,16)
+    key = fixed_length_key(key, 16)
     r = ""
     if padding:
         data = pkcs7.add_padding(data, 16)
@@ -434,9 +431,8 @@ def encrypt_128_ecb(data, key, padding=True):
     return r
 
 
-@SilenceErrors
 def decrypt_128_ecb(data, key, padding=True):
-    key = fixed_length_key(key,16)
+    key = fixed_length_key(key, 16)
 
     r = ""
     for i in range(0, len(data), 16):
@@ -447,10 +443,9 @@ def decrypt_128_ecb(data, key, padding=True):
         return r
 
 
-@SilenceErrors
 @add_sha256_hmac
 def encrypt_128_ctr(data, key):
-    key = fixed_length_key(key,16)
+    key = fixed_length_key(key, 16)
     counter = os.urandom(16)
     r = counter
     for i in range(0, len(data), 16):
@@ -460,10 +455,9 @@ def encrypt_128_ctr(data, key):
     return r
 
 
-@SilenceErrors
 @check_sha256_hmac
 def decrypt_128_ctr(data, key):
-    key = fixed_length_key(key,16)
+    key = fixed_length_key(key, 16)
     counter = data[:16]
     data = data[16:]
     r = ""
@@ -519,10 +513,9 @@ def aes128dec(block, key):
     return "".join([chr(b) for b in block])
 
 
-@SilenceErrors
 @add_sha256_hmac
 def encrypt_256_ctr(data, key):
-    key = fixed_length_key(key,32)
+    key = fixed_length_key(key, 32)
     counter = os.urandom(16)
     r = counter
     for i in range(0, len(data), 16):
@@ -532,10 +525,9 @@ def encrypt_256_ctr(data, key):
     return r
 
 
-@SilenceErrors
 @check_sha256_hmac
 def decrypt_256_ctr(data, key):
-    key = fixed_length_key(key,32)
+    key = fixed_length_key(key, 32)
     counter = data[:16]
     data = data[16:]
     r = ""
@@ -546,10 +538,9 @@ def decrypt_256_ctr(data, key):
     return r
 
 
-@SilenceErrors
 @add_sha256_hmac
 def encrypt_256_cbc(data, key, padding=True, gen_iv=True):
-    key = fixed_length_key(key,32)
+    key = fixed_length_key(key, 32)
     if padding:
         data = pkcs7.add_padding(data, 16)
         r = ""
@@ -568,10 +559,9 @@ def encrypt_256_cbc(data, key, padding=True, gen_iv=True):
     return r
 
 
-@SilenceErrors
 @check_sha256_hmac
 def decrypt_256_cbc(data, key, padding=True, gen_iv=True):
-    key = fixed_length_key(key,32)
+    key = fixed_length_key(key, 32)
     r = ""
     if gen_iv:
         iv = data[:16]
@@ -591,7 +581,7 @@ def decrypt_256_cbc(data, key, padding=True, gen_iv=True):
 
 
 def encrypt_256_ecb(data, key, padding=True):
-    key = fixed_length_key(key,32)
+    key = fixed_length_key(key, 32)
     r = ""
     if padding:
         data = pkcs7.add_padding(data, 16)
@@ -601,7 +591,7 @@ def encrypt_256_ecb(data, key, padding=True):
 
 
 def decrypt_256_ecb(data, key, padding=True):
-    key = fixed_length_key(key,32)
+    key = fixed_length_key(key, 32)
     r = ""
     for i in range(0, len(data), 16):
         r += aes256dec(data[i:i + 16], key)
@@ -677,10 +667,11 @@ class RNG_CTR(RngBase):
         self.buf = self.buf[1:]
         return r
 
+
 def cbc_mac(data, key):
     key = fixed_length_key(key, 16)
     data = pkcs7.add_padding(data, 16)
-    iv = "\0"*16
+    iv = "\0" * 16
     r = ""
     for i in range(0, len(data), 16):
         cipherblock = aes128enc(xor_str(data[i:i + 16], iv), key)

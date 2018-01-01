@@ -18,7 +18,7 @@
 import crypturd
 from crypturd.common import rotl_i32, rotr_i32, _i32, null_padding
 from crypturd.common import int2littleendian, littleendian2int
-from crypturd.common import xor_str, SilenceErrors, modexp, RngBase, fixed_length_key
+from crypturd.common import xor_str, modexp, RngBase, fixed_length_key
 from crypturd.poly1305 import add_poly1305_mac, check_poly1305_mac
 from crypturd.sha import sha256
 from os import urandom
@@ -26,11 +26,10 @@ from os import urandom
 # first 4 intial values of chacha block
 constants = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574]
 
-# ChaCha quarter round
-# a,b,c,d are indexes to 32-bit integers in X
-
 
 def quarter_round(X, a, b, c, d):
+    "ChaCha quarter round, used as a subroutine of a the ChaCha cipher"
+    # a,b,c,d are indexes to 32-bit integers in X
     X[a] = _i32(X[a] + X[b])
     X[d] = rotl_i32(X[d] ^ X[a], 16)
     X[c] = _i32(X[c] + X[d])
@@ -42,27 +41,37 @@ def quarter_round(X, a, b, c, d):
 
 
 def chacha20_block(key, counter, nonce):
+    "apply 20 rounds of ChaCha (10 vertical + 10 diagonal) to a block"
     state = constants + key + counter + nonce
+
+    # Make a copy of the initial state for later
     state_init = [state[i] for i in range(16)]
+
+    # We do 2 "full" rounds per inner loop
     for i in range(10):
+        # Apply the quarter round routine to columns
         quarter_round(state, 0, 4,  8, 12)
         quarter_round(state, 1, 5,  9, 13)
         quarter_round(state, 2, 6, 10, 14)
         quarter_round(state, 3, 7, 11, 15)
+
+        # Apply the quarter round routine to diagonals
         quarter_round(state, 0, 5, 10, 15)
         quarter_round(state, 1, 6, 11, 12)
         quarter_round(state, 2, 7,  8, 13)
         quarter_round(state, 3, 4,  9, 14)
 
+    # Mix in the original state to make it infeasable to invert this function
     for i in range(16):
         state[i] = _i32(state[i] + state_init[i])
 
+    # Encode everythin as a string
     return "".join([int2littleendian(state[i], 4) for i in range(16)])
 
 
-@SilenceErrors
 @add_poly1305_mac
 def chacha20_encrypt(plaintext, key, counter=1):
+    "Encrypt a string using a key"
     key = fixed_length_key(key, 32)
     key_words = [littleendian2int(key[i:i + 4]) for i in range(0, 32, 4)]
     nonce_words = [littleendian2int(urandom(4)) for _ in range(3)]
@@ -78,9 +87,9 @@ def chacha20_encrypt(plaintext, key, counter=1):
     return ciphertext
 
 
-@SilenceErrors
 @check_poly1305_mac
 def chacha20_decrypt(data, key, counter=1):
+    "Decrypt a string using a key"
     key = fixed_length_key(key, 32)
     key_words = [littleendian2int(key[i:i + 4]) for i in range(0, 32, 4)]
     nonce_words = [littleendian2int(data[i:i + 4]) for i in range(0, 12, 4)]
@@ -100,14 +109,16 @@ class chacha20_rand(RngBase):
 
     "A Random number generator based of Chacha20"
 
-    def __init__(self,seed=None):
+    def __init__(self, seed=None):
         if not seed:
             seed = urandom(56)
-        elif len(seed) < 4*8 + 3*8:
+        elif len(seed) < 4 * 8 + 3 * 8:
             raise Exception('Seed value too short')
 
-        self.key_words = [littleendian2int(seed[i*4:i*4+4]) for i in range(8)]
-        self.nonce_words = [littleendian2int(seed[32+i*4:32+i*4+4]) for _ in range(3)]
+        self.key_words = [littleendian2int(seed[i * 4:i * 4 + 4])
+                          for i in range(8)]
+        self.nonce_words = [littleendian2int(seed[32 + i * 4:32 + i * 4 + 4])
+                            for _ in range(3)]
         self.counter = 1
         self.buf = ""
 

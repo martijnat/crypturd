@@ -28,63 +28,63 @@ import sys
 # Signature size:   8.84 KiB
 # Private key:    126.60 KiB
 
+
 class PrivateKey():
 
-    def __init__(self, max_sig_size = 9*1024):
-        self.depth,self.width = best_depth_width(max_sig_size)
-        self.root_key        = onetimesig.new_keys()
-        self.node_keys  = [[onetimesig.new_keys()
-                            for ind in range(self.width)]
-                           for d in range(self.depth)]
-        self.node_index      = [0 for d in range(self.depth)]
+    def __init__(self, max_sig_size=9 * 1024):
+        self.depth, self.width = best_depth_width(max_sig_size)
+        self.root_key = onetimesig.new_keys()
+        self.node_keys = [[onetimesig.new_keys()
+                           for ind in range(self.width)]
+                          for d in range(self.depth)]
+        self.node_index = [0 for d in range(self.depth)]
 
     def __repr__(self):
-        return "<manytimessig %s>"%crypturd.hexstr(self.root_key[0])
+        return "<manytimessig %s>" % crypturd.hexstr(self.root_key[0])
 
-    def sign(self,msg):
+    def sign(self, msg):
         "Sign the path to a leaf in the tree and sign using that leaf"
         self.update_counter()
         sk = self.root_key[1]
         sig = chr(self.width)
-        for d in range(0,self.depth,1):
+        for d in range(0, self.depth, 1):
             for x in range(self.width):
-                sig+=self.node_keys[d][x][0]
+                sig += self.node_keys[d][x][0]
 
-            sig+= onetimesig.sign(
-                "".join([self.node_keys[d][x][0] for x in range(self.width)])
-                ,sk)
+            sig += onetimesig.sign(
+                "".join([self.node_keys[d][x][0] for x in range(self.width)]), sk)
 
-            sig+=chr(self.node_index[d])
+            sig += chr(self.node_index[d])
             sk = self.node_keys[d][self.node_index[d]][1]
 
-        sig += onetimesig.sign(msg,sk)
+        sig += onetimesig.sign(msg, sk)
         return sig
 
     def signatures_left(self):
         "Return how many message can still be signed"
         n = 0
         for d in range(self.depth):
-            n*=self.width
-            n+=self.node_index[d]
-        return (self.width**self.depth)-n
+            n *= self.width
+            n += self.node_index[d]
+        return (self.width**self.depth) - n
 
     def update_counter(self):
         "Count in binary to generate a new path in the tree"
         overflow = True
-        for d in range(self.depth-1,-1,-1):
+        for d in range(self.depth - 1, -1, -1):
             if overflow:
-                if self.node_index[d]==(self.width-1):
+                if self.node_index[d] == (self.width - 1):
                     self.node_index[d] = 0
                 else:
-                    self.node_index[d] +=1
+                    self.node_index[d] += 1
                     overflow = False
-                    for d2 in range(d+1,self.depth,1):
-                        self.node_keys[d2]  = [onetimesig.new_keys()
-                                               for ind in range(self.width)]
+                    for d2 in range(d + 1, self.depth, 1):
+                        self.node_keys[d2] = [onetimesig.new_keys()
+                                              for ind in range(self.width)]
         if overflow:
-            for d2 in range(0,self.depth,1):
-                self.node_keys[d2]  = [onetimesig.new_keys()
-                                       for ind in range(self.width)]
+            for d2 in range(0, self.depth, 1):
+                self.node_keys[d2] = [onetimesig.new_keys()
+                                      for ind in range(self.width)]
         # for d in range(self.depth):
         #     ind = self.node_index[d]
         #     k = crypturd.common.hexstr(self.node_keys[d][ind][0])[:64]
@@ -93,38 +93,45 @@ class PrivateKey():
     def PublicKey(self):
         return self.root_key[0]
 
-def verify(msg,sig,pk):
-    width,sig = ord(sig[0]),sig[1:]
+
+def verify(msg, sig, pk):
+    width, sig = ord(sig[0]), sig[1:]
     slen = onetimesig.signature_size
 
-    while len(sig)>slen:
+    while len(sig) > slen:
         keys = []
         for _ in range(width):
-            nkey,sig= sig[:32],sig[32:]
+            nkey, sig = sig[:32], sig[32:]
             keys.append(nkey)
 
-        ksig,sig = sig[:slen],sig[slen:]
+        ksig, sig = sig[:slen], sig[slen:]
 
-        if not onetimesig.verify("".join(keys),ksig,pk):
+        if not onetimesig.verify("".join(keys), ksig, pk):
             return False
-        rsymb,sig = ord(sig[0]),sig[1:]
+        rsymb, sig = ord(sig[0]), sig[1:]
         pk = keys[rsymb]
 
-    return onetimesig.verify(msg,sig,pk)
+    return onetimesig.verify(msg, sig, pk)
 
 
 def best_depth_width(max_sig_size):
     "find the best depth and width to"
-    def sigsize(height,width,slen=onetimesig.signature_size):
-        return slen+ (height)*(1+width*32+slen)
+    def sigsize(height, width, slen=onetimesig.signature_size):
+        return slen + (height) * (1 + width * 32 + slen)
 
-    best_d_w = 0,0
+    best_d_w = 0, 0
     best_sigcount = 0
-    for depth in range(1,256):
-        for width in range(1,256):
-            ssize = sigsize(depth,width)
-            if ssize<=max_sig_size:
+    for depth in range(1, 256):
+        for width in range(1, 256):
+            ssize = sigsize(depth, width)
+            if ssize <= max_sig_size:
                 if width**depth > best_sigcount:
                     best_sigcount = width**depth
-                    best_d_w = depth,width
+                    best_d_w = depth, width
     return best_d_w
+
+
+def key_pair():
+    sk = PrivateKey()
+    pk = sk.PublicKey()
+    return pk, sk

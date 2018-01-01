@@ -46,7 +46,6 @@ version_info = (1, 0, 0, 'final', 0)
 from crypturd.aes import *
 from crypturd.chacha20 import *
 from crypturd.common import *
-from crypturd.default import *
 from crypturd.dsa import *
 from crypturd.ecc import *
 from crypturd.manytimessig import *
@@ -63,3 +62,5 @@ from crypturd.sha import *
 from crypturd.test import test_all as selftest
 from crypturd.twotimesig import *
 import crypturd.thinice
+
+from crypturd.default import *
