@@ -28,6 +28,10 @@ import sys
 # Signature size:   8.84 KiB
 # Private key:    126.60 KiB
 
+def sign(m,sk):
+    "Sign a message using a manytimesig secret key"
+    return sk.sign(m)
+
 
 class PrivateKey():
 

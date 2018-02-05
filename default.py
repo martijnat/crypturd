@@ -31,6 +31,7 @@ rand = crypturd.chacha20.rand
 # Default signature scheme is my custom hash-based scheme
 sign_keypair = crypturd.manytimessig.key_pair
 verify = crypturd.manytimessig.verify
+sign = crypturd.manytimessig.sign
 
 # Default Key exchange algorithm is ECDH (over Ed25519)
 DH_keypair = crypturd.ecc.ECDH_public_private_keypair
