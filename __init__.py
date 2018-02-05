@@ -63,4 +63,9 @@ from crypturd.test import test_all as selftest
 from crypturd.twotimesig import *
 import crypturd.thinice
 
+
 from crypturd.default import *
+
+# Add default cipher functions
+__all__ += ["encrypt", "decrypt", "hash", "rand", "sign_keypair",
+            "verify", "sign", "DH_keypair", "DH_common_secret"]
