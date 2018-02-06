@@ -10,15 +10,18 @@ correct implementations which are easy to use.
 # Example usage
 
     #!/usr/bin/env python2
-    import crypturd
+    from crypturd import encrypt,decrypt
 
-    message = "Attack at dawn!"       # can be any length, even empty
-    key = "yKj3xBCBatVG1Q0gZ8ss2xbC4" # can be any length, >128 bits of entropy is recommended
+    # Input message and key are strings or arbitrary length
+    message = "Attack at dawn!"
+    key = "yKj3xBCBatVG1Q0gZ8ss2xbC4"
 
-    # Default encryption is ChaCha20+Poly1305
-    ciphertext = crypturd.encrypt(message,key)
+    # Generate ciphertext from message and key
+    # Default symmetric key cipher is chacha20+poly1305
+    ciphertext = encrypt(message,key)
 
-    print crypturd.decrypt(ciphertext,key)
+    # Recover plaintext from ciphertext
+    plaintext = decrypt(ciphertext,key)
 
 
 # Default cipher suite
