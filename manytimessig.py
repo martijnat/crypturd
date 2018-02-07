@@ -24,15 +24,19 @@ import sys
 
 # Properties with default settings
 
-# Signatures:      1.419.840
-# Public key:       32 Bytes
-# Signature size:   8.84 KiB
-# Private key:    126.60 KiB
 
-subtree_width = 17
+
+# Signatures:     16,777,216
+# Public key:             32 Bytes
+# Signature size:       4.97 KiB
+# Private key:          2.31 MiB
+
+subtree_width = 256
 
 # To caluclate size just generate an empty one and check
-subtree_size = len(str(merkle_tree(['\0'*32 for _ in range(subtree_width)]).prune(0)))
+empty_tree = merkle_tree(['\0'*32 for _ in range(subtree_width)])
+empty_tree.prune(0)
+subtree_size = len(str(empty_tree))
 
 def sign(m,sk):
     "Sign a message using a manytimesig secret key"
@@ -41,24 +45,24 @@ def sign(m,sk):
 def verify(msg, sig, pk):
     slen = onetimesig.signature_size
     while len(sig) > slen:
-        keys = []
-        for _ in range(subtree_width):
-            nkey, sig = sig[:32], sig[32:]
-            keys.append(nkey)
+        subtree_str,sig = sig[:subtree_size],sig[subtree_size:]
+        subtree_tag,sig = sig[:slen],sig[slen:]
+        pk_index,sig = ord(sig[0]),sig[1:]
+        subtree = merkle_tree(["" for _ in range(subtree_width)])
+        subtree.prune(pk_index)
+        subtree.fill(subtree_str)
 
-        ksig, sig = sig[:slen], sig[slen:]
-
-        if not onetimesig.verify("".join(keys), ksig, pk):
+        if not onetimesig.verify(subtree.root_hash(),subtree_tag,pk):
             return False
-        rsymb, sig = ord(sig[0]), sig[1:]
-        pk = keys[rsymb]
+
+        pk = subtree[pk_index]
 
     return onetimesig.verify(msg, sig, pk)
 
 
 class PrivateKey():
 
-    def __init__(self, depth=5):
+    def __init__(self, depth=3):
         self.depth = depth
         self.root_key = onetimesig.new_keys()
         self.node_keys = [[onetimesig.new_keys()
@@ -75,13 +79,13 @@ class PrivateKey():
         sk = self.root_key[1]
         sig = ""
         for d in range(0, self.depth, 1):
-            for x in range(subtree_width):
-                sig += self.node_keys[d][x][0]
+            subtree = merkle_tree([self.node_keys[d][x][0] for x in range(subtree_width)])
+            subtree.prune(self.node_index[d])
+            sig += str(subtree)
 
-            sig += onetimesig.sign(
-                "".join([self.node_keys[d][x][0] for x in range(subtree_width)]), sk)
-
+            sig += onetimesig.sign(subtree.root_hash(), sk)
             sig += chr(self.node_index[d])
+
             sk = self.node_keys[d][self.node_index[d]][1]
 
         sig += onetimesig.sign(msg, sk)
