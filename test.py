@@ -175,18 +175,19 @@ def test_twotimesig():
 
 def test_manytimessig():
     bytes_processed = 0
-    sk = crypturd.manytimessig.PrivateKey(max_sig_size = 4*1024)
+    sk = crypturd.manytimessig.PrivateKey(2)
     pk = sk.PublicKey()
     for _ in range(10):
         data = os.urandom(32)
         sig = sk.sign(data)
         assert crypturd.manytimessig.verify(data,sig,pk)
+        assert not crypturd.manytimessig.verify(data,os.urandom(len(sig)),pk)
         bytes_processed += 32
     return bytes_processed
 
 def test_statelesssig():
     bytes_processed = 0
-    sk = crypturd.statelesssig.PrivateKey(max_sig_size = 4*1024)
+    sk = crypturd.statelesssig.PrivateKey(depth = 8, width = 8)
     pk = sk.PublicKey()
     for _ in range(3):
         data = os.urandom(32)

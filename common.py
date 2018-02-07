@@ -494,3 +494,89 @@ class Fraction():
     def __repr__(self):
         return "Fraction(%i/%i)"%(self.a,self.b)
 
+
+class merkle_node():
+
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+        self.is_leaf = False
+
+    def root_hash(self):
+        return crypturd.sha.sha256(self.left.root_hash() + self.left.root_hash())
+
+    def nested_array(self):
+        return [self.left.nested_array(), self.right.nested_array()]
+
+    def prune(self, ind=-2):
+        self.left.prune(ind)
+        self.right.prune(ind)
+        if not self.left.is_leaf:
+            if (self.left.left.is_leaf\
+                and self.left.right.is_leaf\
+                and self.left.left.ind != ind\
+                and self.left.right.ind != ind):
+                self.left = merkle_leaf(self.left.root_hash())
+        if not self.right.is_leaf:
+            if (self.right.left.is_leaf\
+                and self.right.right.is_leaf\
+                and self.right.left.ind != ind\
+                and self.right.right.ind != ind):
+                self.right = merkle_leaf(self.right.root_hash())
+
+    def __str__(self):
+        return str(self.left) + str(self.right)
+
+    def fill(self,s):
+        s = self.left.fill(s)
+        s = self.right.fill(s)
+        return s
+    def __getitem__(self,ind):
+        try:
+            return self.left[ind]
+        except IndexError:
+            return self.right[ind]
+
+
+class merkle_leaf(merkle_node):
+
+    def __init__(self, value, ind=-1):
+        self.value = value
+        self.ind = ind
+        self.is_leaf = True
+
+    def root_hash(self):
+        return self.value
+
+    def nested_array(self):
+        return self.value
+
+    def prune(self, ind=-2):
+        return
+
+    def __str__(self):
+        return self.value
+
+    def fill(self,s):
+        self.value = s[:32]
+        return s[32:]
+    def __getitem__(self,ind):
+        if self.ind == ind:
+            return self.value
+        else:
+            raise IndexError
+
+def merkle_tree(values):
+    nodes = [merkle_leaf(value, i) for i, value in enumerate(values)]
+    while len(nodes) > 2:
+        new_nodes = []
+        while len(nodes) > 1:
+            leaf1, leaf2, nodes = nodes[0], nodes[1], nodes[2:]
+            new_nodes.append(merkle_node(leaf1, leaf2))
+        nodes = new_nodes + nodes
+
+    if len(nodes) == 1:
+        tree = nodes[0]
+    else:
+        tree = merkle_node(nodes[0], nodes[1])
+    return tree

@@ -34,7 +34,7 @@ import sys
 # Private key:     2026 KiB
 
 class PrivateKey():
-    def __init__(self, masterkey = None, max_sig_size = 64*1024):
+    def __init__(self, masterkey = None, depth = 41, width = 16):
         if not masterkey:
             masterkey           = os.urandom(56+onetimesig.signature_size)
         elif len(masterkey)<56+onetimesig.signature_size:
@@ -43,7 +43,8 @@ class PrivateKey():
             self.masterkey = masterkey
 
         self.masterkey  = masterkey
-        self.depth,self.width = crypturd.manytimessig.best_depth_width(max_sig_size)
+        self.depth = depth
+        self.width = width
         self.root_key   = onetimesig.new_keys(self.masterkey[56:])
         self.node_keys  = [[(None,None)
                                      for ind in range(self.width)]
