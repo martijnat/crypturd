@@ -28,8 +28,7 @@ import sys
 
 # Signatures:     16,777,216
 # Public key:             32 Bytes
-# Signature size:       4.97 KiB
-# Private key:          2.31 MiB
+# Signature size:       5219 Bytes
 
 subtree_width = 256
 

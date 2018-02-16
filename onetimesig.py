@@ -20,6 +20,12 @@ from crypturd.sha import sha256
 import os
 
 
+# The scheme is a Winternitz signature scheme with the following parameters:
+# l1 = 32
+# l2 = 2
+# w = 256
+# And SHA256 as its hash function
+
 # Debug code for detecting key-reuse
 signature_keys = []
 signatures = {}
@@ -35,14 +41,7 @@ def debug_use_key(msg,key):
             signature_keys.append(sk)
             signatures[sk] = msg
 
-# Modified Winternitz signature scheme
-
-# 1-time usage
-# 1056 Byte Secret key
-# 1056 Byte Signature
-# 32 Byte Public key
-
-signature_size = 1056           # signature size in bytes
+signature_size = 32*(32+2)           # signature size in bytes
 
 def hash_times(msg,n=1,h=sha256):
     for _ in range(n):
@@ -51,14 +50,15 @@ def hash_times(msg,n=1,h=sha256):
 
 def new_keys(sk = None):
     "Generate a public/private keypair for hash-based signatures"
-    if not sk or len(sk)<32*33:
-        sk = os.urandom(32*33)
+    if not sk or len(sk)<32*34:
+        sk = os.urandom(32*34)
     pk = ""
     # 32 secrets for 32 blocks of 8-bits each
     for n in range(32):
         pk+= hash_times(sk[n*32:n*32+32],256)
-    # 1 checksum block
-    pk += hash_times(sk[-32:],32*256)
+    # 2 checksum blocks
+    pk += hash_times(sk[-64:-32],32)
+    pk += hash_times(sk[-32:],256)
     return sha256(pk), sk
 
 def sign(msg, sk):
@@ -70,7 +70,9 @@ def sign(msg, sk):
         c = ord(msg[i])
         checksum += c
         sig += hash_times(sk[i*32:i*32+32],c)
-    sig += hash_times(sk[-32:],32*256-checksum)
+    # sign a checksum
+    sig += hash_times(sk[-64:-32],32 - (checksum//256))
+    sig += hash_times(sk[-32:],256 - (checksum%256))
     return sig
 
 def verify(msg, sig, pk):
@@ -82,5 +84,6 @@ def verify(msg, sig, pk):
         c = ord(msg[i])
         checksum += c
         digest += hash_times(sig[i*32:i*32+32],256-c)
-    digest += hash_times(sig[-32:],checksum)
+    digest += hash_times(sig[-64:-32],checksum//256)
+    digest += hash_times(sig[-32:],checksum%256)
     return sha256(digest) == pk
