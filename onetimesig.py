@@ -19,16 +19,28 @@ import crypturd
 from crypturd.sha import sha256
 import os
 
-# Winternitz signature scheme
 
-# secret key is 33 random 32-bit strings
-# Signature = H_n(S_0) ... H_m(S_31) || H_checksum(S_32)
+# Debug code for detecting key-reuse
+signature_keys = []
+signatures = {}
+ASSERT_NO_KEY_REUSE = False
+
+def debug_use_key(msg,key):
+    # Code for testing if a signature is used twice
+    if ASSERT_NO_KEY_REUSE:
+        if sk in signature_keys:
+            if not (signatures[sk] == msg):
+                raise Exception(' reused one-time key <%s...>'%crypturd.common.hexstr(sk)[:64])
+        else:
+            signature_keys.append(sk)
+            signatures[sk] = msg
+
+# Modified Winternitz signature scheme
 
 # 1-time usage
 # 1056 Byte Secret key
 # 1056 Byte Signature
 # 32 Byte Public key
-
 
 signature_size = 1056           # signature size in bytes
 
@@ -39,36 +51,19 @@ def hash_times(msg,n=1,h=sha256):
 
 def new_keys(sk = None):
     "Generate a public/private keypair for hash-based signatures"
-    # Based of winternitz
     if not sk or len(sk)<32*33:
         sk = os.urandom(32*33)
-    digest = ""
+    pk = ""
     # 32 secrets for 32 blocks of 8-bits each
     for n in range(32):
-        digest+= hash_times(sk[n*32:n*32+32],256)
+        pk+= hash_times(sk[n*32:n*32+32],256)
     # 1 checksum block
-    digest += hash_times(sk[-32:],32*256)
-    pk = sha256(digest)
-    return pk, sk
-
-
-signature_keys = []
-signatures = {}
-ASSERT_NO_KEY_REUSE = False
+    pk += hash_times(sk[-32:],32*256)
+    return sha256(pk), sk
 
 def sign(msg, sk):
     "Sign a 256-bit value"
     msg = crypturd.fixed_length_key(msg, 32)
-
-    # Code for testing if a signature is used twice
-    if ASSERT_NO_KEY_REUSE:
-        if sk in signature_keys:
-            if not (signatures[sk] == msg):
-                raise Exception(' reused one-time key <%s...>'%crypturd.common.hexstr(sk)[:64])
-        else:
-            signature_keys.append(sk)
-            signatures[sk] = msg
-
     sig = ""
     checksum = 0
     for i in range(32):
